@@ -1,0 +1,181 @@
+% Section 3: Method — scalar OTS-NIDC
+\section{The method I: scalar OTS-NIDC on the reaction--diffusion family}
+\label{sec:method}
+
+Throughout, $\ddx u_j = (u_{j+1}-2u_j+u_{j-1})/\dx^2$ is the centered second
+difference and refinement means $\dx\to0$ with $\dt$ slaved to $\dx$.
+
+\subsection{The scalar family and the optimal time step}
+
+Consider the deterministic family
+\begin{equation}\label{eq:family}
+u_t = D\,u_{xx} + \alpha\,u, \qquad D>0,\ \alpha\in\R,
+\end{equation}
+whose stochastic motivation (the moment equations of \eqref{eq:spde}, with
+$\alpha = \frac{k(k-1)}2\sigma^2$) is deferred to \S\ref{sec:stochastic}.
+The pure diffusion case $\alpha=0$ is exactly Chu's setting \citep{chu2011}.
+
+Apply forward Euler in time and the three-point stencil in space. Taylor
+expansion of both sides, followed by repeated differentiation of
+\eqref{eq:family} to convert time derivatives of $u$ into space derivatives
+(the operators $D\partial_{xx}$ and $\alpha$ commute, giving the binomial
+identity $u_{t^k} = (D\partial_{xx}+\alpha)^k u$), yields the local truncation
+error organized by derivative type:
+\begin{equation}\label{eq:lte}
+\tau \;=\;
+\underbrace{\Bigl(\tfrac{D^2\dt}2 - \tfrac{D\dx^2}{12}\Bigr)u_{xxxx}}_{\text{Group 1}}
+\;+\;
+\underbrace{\alpha D\,\dt\,u_{xx}}_{\text{Group 2}}
+\;+\;
+\underbrace{\tfrac{\alpha^2\dt}2\,u}_{\text{Group 3}}
+\;+\;O(\dt^2,\dx^4).
+\end{equation}
+Only Group 1 couples $\dt$ to $\dx$. Setting it to zero:
+
+\begin{theorem}[Optimal time step {\citep{chu2011}}]\label{thm:ots}
+For \eqref{eq:family} discretized by forward Euler / centered differences, the
+unique step size annihilating the leading ($u_{xxxx}$) truncation term is
+\begin{equation}\label{eq:dtopt2}
+\boxed{\ \dto = \frac{\dx^2}{6D}\ }
+\end{equation}
+and no single step annihilates both the $u_{xxxx}$ and $u_{xxxxxx}$ truncation
+terms, since the level-2 condition is $\dt = \dx^2/(\sqrt{60}\,D) \ne \dto$.
+\end{theorem}
+\noindent (Proof: one-line cancellation in \eqref{eq:lte}; uniqueness by the
+level-2 computation. Full algebra in \texttt{sign-change.tex} \S1.)
+
+\begin{proposition}[$\alpha$-independence]\label{prop:alpha}
+$\dto$ is independent of the reaction parameter $\alpha$: the cancellation
+operates on the diffusive group alone. For the stochastic hierarchy this makes
+$\dto$ independent of the noise amplitude $\sigma$ and of the moment order $k$.
+\end{proposition}
+
+\begin{corollary}[One step governs the hierarchy]\label{cor:indep}
+All moment equations $M_{k,t} = D\,M_{k,xx} + \frac{k(k-1)}2\sigma^2 M_k$ of the
+scalar stochastic heat equation share the single optimal step $\dto=\dx^2/6D$.
+Only the defect corrections differ, through explicit $\alpha_k$-dependent
+coefficients.
+\end{corollary}
+\noindent\emph{Status:} \tagP (algebraic identity; numerically exercised by every
+scalar run below). The same mechanism is the level-1 shadow of
+Chu--Lambers' variable-coefficient OTS \citep{chu2009}: $\alpha$-dependence
+survives only where the coefficient of the \emph{leading} spatial operator varies.
+
+\subsection{The first-level correction, and the sign that matters}
+
+At $\dt=\dto$ the Group-1 term vanishes and the surviving residual is
+\begin{equation}\label{eq:resid}
+\tau\big|_{\dto} \;=\;
+\frac{\alpha\dx^2}6\,u_{xx} + \frac{\alpha^2\dx^2}{12D}\,u \;+\; O(\dx^4).
+\end{equation}
+\begin{remark}[Sign convention]\label{rem:sign}
+The truncation error $\tau$ as assembled in \eqref{eq:lte} is the \emph{forward}
+residual: $\text{exact} - \text{scheme} = \dt\,\tau + \cdots$. Cancelling it
+therefore requires \emph{adding} $\dt\,\tau$; the earlier manuscript version
+subtracted it and thereby doubled the leading error. The corrected correction is
+\begin{equation}\label{eq:C1}
+\boxed{\ C^{(1)}_j
+= +\frac{\alpha\,\dx^4}{36D}\,\ddx u^n_j
+\;+\; \frac{\alpha^2\,\dx^4}{72D^2}\,u^n_j\ }
+\end{equation}
+and the same flip applies to the general $p$-level tower \eqref{eq:tower}.
+Independent confirmation: doc-sign converges at order 2.01, corrected sign at
+4.01 (Table~\ref{tab:scalar}). Full algebra: \texttt{sign-change.tex}.
+\end{remark}
+
+\begin{theorem}[First-level accuracy]\label{thm:p1}
+The corrected scheme
+\begin{equation}\label{eq:scheme1}
+u^{n+1}_j = u^n_j + \dto\Bigl[D\,\ddx u^n_j + \alpha\,u^n_j\Bigr] + C^{(1)}_j
+\end{equation}
+has step error $O(\dx^6)$ and global order $4$: the correction $C^{(1)}$ is
+itself $O(\dx^4)$, so its evaluation with the second-order operator $\ddx$
+contributes only $O(\dx^6)$ to the step --- the three-point stencil is
+mathematically sufficient at $p=1$.
+\end{theorem}
+\noindent\emph{Status:} \tagV. Measured orders and errors, with the harness
+described in Appendix~\ref{app:repro}:
+
+\begin{table}[h]
+\centering
+\caption{Scalar $p=1$ convergence, $u_t = Du_{xx} + \alpha u$ with
+$D=0.1$, $\alpha\sigma^2=0.25$, Neumann BCs, $T=0.05$; $L^2$ error against the
+exact cosine-series solution. Data: \texttt{code/implementation/results.md}
+(generated by \texttt{convergence\_test.py}, 2026-07). All methods use the same
+grid and step size $\dto$ at each level.}
+\label{tab:scalar}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Method & $N=32$ & $N=64$ & $N=128$ & $N=256$ \\
+\midrule
+OTS-NIDC ($p=1$) & $8.54\text{e-}09$ & $5.26\text{e-}10$ & $3.27\text{e-}11$ & $2.04\text{e-}12$ \\
+Forward Euler    & $1.23\text{e-}05$ & $3.02\text{e-}06$ & $7.52\text{e-}07$ & $1.88\text{e-}07$ \\
+4th-order FD + FE& $1.52\text{e-}05$ & $3.79\text{e-}06$ & $9.45\text{e-}07$ & $2.36\text{e-}07$ \\
+Reference expm   & $2.77\text{e-}05$ & $6.81\text{e-}06$ & $1.70\text{e-}06$ & $4.23\text{e-}07$ \\
+\midrule
+\multicolumn{5}{@{}l@{}}{\emph{Measured order (log--log slope, mean over levels):}}\\
+OTS-NIDC & \multicolumn{4}{c}{$4.01$ \quad(FE / 4th-order FD / expm: $2.00$--$2.01$)}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The 4th-order-FD row carries the paper's cleanest negative control: high-order
+spatial accuracy alone buys nothing when the step size is slaved to $\dx^2$ ---
+the $O(\dt)$ time error caps the whole scheme at second order. The boost must
+come from the time-step structure; that is the method's thesis, verified.
+
+\subsection{The $p$-level tower and the stencil bound}
+
+The general correction is generated by powers of the operator, with the sign of
+Remark~\ref{rem:sign}:
+\begin{equation}\label{eq:tower}
+C^{(\le p)}_j \;=\; +\sum_{\ell=1}^{p} \frac{\dto^\ell}{(\ell+1)!}
+\bigl(D\mathcal{D}_2 + \alpha\bigr)^{\ell} u^n_j,
+\end{equation}
+where $\mathcal{D}_2$ is a spatial operator whose accuracy must be raised as
+$\ell$ grows. Spatial discretization error breaks the binomial symmetry of the
+time expansion, giving the stencil-scaling bound:
+
+\begin{proposition}[Stencil bound; sketch]\label{prop:stencil}
+Global order $2p+2$ requires corrections evaluated on at least a
+$(2p+3)$-point stencil: $p=1$ needs the 3-point main stencil plus a 5-point
+evaluation inside $C^{(1)}$ when full fourth-order spatial accuracy is demanded
+of the correction itself; $p=2$ needs a 7-point stencil to represent the
+uncancelled $u_{xxxxxx}$ residual.
+\end{proposition}
+\noindent\emph{Status:} \tagO for $p\ge2$ numerics (no harness yet; the bound's
+derivation is a consistency argument in \texttt{OTS-NIDC.md} \S6). The $p=1$
+row is \tagV via Table~\ref{tab:scalar}.
+
+\subsection{Stability}
+
+\begin{proposition}[Von Neumann stability]\label{prop:stability}
+With $s=\sin^2(k\dx/2)$, $\mu = D\dt/\dx^2$, $\eta = \alpha\dx^2/D$, the
+amplification factors are $G_{\mathrm{FE}} = 1-4\mu s+\mu\eta$ and
+\[
+G_{\mathrm{NIDC}} = 1 - 4\mu s + \mu\eta - \tfrac{\eta}{9}s + \tfrac{\eta^2}{72}.
+\]
+For the moment hierarchy $\eta \ge 0$ and the grid-scale stability bound
+tightens from $\mu \le 2/(4-\eta)$ to
+$\mu \le (2-\eta/9+\eta^2/72)/(4-\eta)$: a relative shrink of
+$1 - \eta/18 + O(\eta^2)$, i.e.\ $O(\dx^2)$, about $-1.6\%$ at the coarse
+$\eta=0.3$ test point. The optimal step $\mu = 1/6$ sits a factor of $3$ inside
+the CFL ceiling for both schemes.
+\end{proposition}
+\noindent\emph{Status:} \tagV (analytic + numerical check in
+\texttt{code/stability/}; the earlier ``expands the CFL'' conclusion was an
+artifact of the pre-correction sign and has been fixed in the same release).
+The correction is stability-neutral to first order; it never threatens the
+optimal step. Note the honest asymmetry: this is a \emph{scalar} analysis; the
+coupled discrete schemes of \S\ref{sec:coupled} have no independent stability
+proof (open item \ref{open:stab}).
+
+\subsection{Efficiency profile}
+
+The method's cost argument is architectural, not just arithmetic: versus
+multi-stage Runge--Kutta, OTS-NIDC is single-pass (one read, one write of the
+state vector; no stage storage, no stage barriers); versus compact schemes, it
+is strictly local (no tridiagonal solves), so it maps onto GPUs and
+bandwidth-bound hardware without global communication. At $N=256$ the verified
+scalar runs show $\sim10^3$--$10^4\times$ lower error than forward Euler at
+identical grid and step \tagV --- order wins over constants at refinement.

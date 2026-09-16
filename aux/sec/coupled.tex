@@ -1,0 +1,163 @@
+% Section 4: Coupled reaction-diffusion systems
+\section{The method II: coupled reaction--diffusion systems}\label{sec:coupled}
+
+We now couple species --- the deterministic core needed for the stochastic
+two-block system of \S\ref{sec:stochastic}, and the natural home of the paper's
+hardest verification question.
+
+\subsection{Mean-field and second-moment blocks}
+
+For $N$ species with diagonal diffusion, linear reaction coupling, and (here)
+zero noise --- the deterministic skeleton of the moment systems to come ---
+\begin{equation}\label{eq:coupledrd}
+\partial_t u^{(i)} = D_i\,\partial_{xx}u^{(i)} + \sum_j R_{ij}u^{(j)}.
+\end{equation}
+Taking $u^{(i)}=\E[\cdot]$ of a stochastic system instead produces the
+\emph{mean-field (M) block} of \S\ref{sec:stochastic}; the pairwise products
+produce the \emph{second-moment (V) block} with diffusion coefficients
+$D_{ij}=D_i+D_j$. Both have the identical structure of \eqref{eq:coupledrd}
+with different $D$'s and source terms, so the analysis of this section applies
+to each block verbatim.
+
+The per-equation LTE analysis of \S\ref{sec:method} goes through with
+$D\to D_i$ (M block) or $D\to D_{ij}$ (V block), the reaction coupling entering
+only through the analogues of Groups 2--3. The optimal steps are
+\begin{equation}\label{eq:coupledopt}
+\dto^{(i)} = \frac{\dx^2}{6D_i} \quad(\text{M, species }i),
+\qquad
+\dto^{(ij)} = \frac{\dx^2}{6(D_i+D_j)} \quad(\text{V, pair }i,j),
+\end{equation}
+with first-level corrections $C^{(1),(i)}$ and $C^{(1),(ij)}$ of the same
+algebraic form as \eqref{eq:C1}, derived term-by-term in \texttt{OTS-NIDC.md}
+\S8--9. In the moment hierarchy $D_i = D$ these become $\dx^2/6D$ and
+$\dx^2/12D$ --- a strict \textbf{2:1 ratio}, independently verified in
+\texttt{notes/Di\_eq\_D\_verification.md}: measured $\dt_M/\dt_V = 2.0000$ at
+$N=32,64,128$ \tagV.
+
+\subsection{The M/V decoupling}
+
+\begin{proposition}[Exact block decoupling]\label{prop:decouple}
+For affine drift with linear multiplicative noise (the class of
+\S\ref{sec:stochastic}), the M-system is closed in $\{m_i\}$ and the
+V-system is closed in $\{V_{ij}\}$: neither block feeds the other, for any
+$D_i$, $R_{ij}$, $\sigma_{ik}$.
+\end{proposition}
+\begin{proof}[Proof sketch]
+In the M-block, every stochastic contribution is $\E[\,\mathrm{d}W_k\,]=0$: no
+second-moment term can appear. In the V-block, It\^o's product rule contributes
+the quadratic covariation $\sum_k \sigma_{ik}\sigma_{jk}u_k^2\,\mathrm{d}t$,
+whose expectation is a sum of second moments $V_{kk}$ --- the drift being affine
+and the noise being linear, no third moments are generated. Closure is a
+structural consequence of (affine drift) $\times$ (linear noise); it is exactly
+what fails for square-root (chemical Langevin) noise, whose hierarchy closes at
+no finite order \citep{jovanovski2025}.
+\end{proof}
+\noindent\emph{Status:} \tagP. Consequence: the two blocks are two independent
+programs --- no communication, no interpolation, no synchronization constraint
+\emph{between} blocks, for any diffusivities. The residual problem is
+\emph{within}-block: species $i$ and $j$ with $D_i \ne D_j$ want different
+$\dto$'s.
+
+\subsection{Competing optimal steps within a block}
+
+The two failure modes of a naive single step frame the problem.
+
+\paragraph{Failure 1: shared step without correction.} If species 1 (fast,
+$D_1$) is forced onto species 2's optimum $\dt^\ast=\tau_2$, its Group-1
+cancellation breaks. The one-step identity
+\begin{equation}\label{eq:mismatchid}
+e(\dt^\ast) \;=\; \dt^\ast D_1\,\tilde u_{xxxx}
+\Bigl[\tfrac{\dt^\ast D_1}{2} - \tfrac{\dx^2}{12}\Bigr] + O((\dt^\ast)^3)
+\end{equation}
+is exact for every $\dt^\ast$, and writing $\dt^\ast = \tau_1 + \epsilon$ turns
+the bracket into $\epsilon D_1/2$ \emph{identically} (no Taylor truncation in
+$\epsilon$). Hence:
+
+\begin{theorem}[Exact mismatch correction]\label{thm:mismatch}
+For any shared step $\dt^\ast = \tau_1 + \epsilon > 0$ that is stable for
+species 1, subtracting \eqref{eq:mismatchid} (with $\tilde u_{xxxx}$ from a
+5-point stencil) restores species 1's full accuracy. The correction is
+algebraic, not asymptotic, in $\epsilon$ --- including $\epsilon$ of the same
+size as $\tau_1$ itself.
+\end{theorem}
+\noindent\emph{Status:} \tagV (worked example $D_1=3, D_2=1$ at $r=3$,
+\texttt{examples/test\_regime1\_D1\_3\_D2\_1.py}; correction there is
+grid-independent --- the $\dx^4$ cancels, leaving pure stencil weights).
+
+\paragraph{Failure 2: naive splitting.} Lie--Trotter splitting with the
+coupling frozen over a macro step $H$ incurs a sustained $O(H)$ forcing error;
+accumulated over $T/H$ cycles this is a global $O(H) = O(\dx^2)$ error ---
+worse than the uncorrected base scheme. Freezing is not viable; coupling data
+data must be interpolated (order $m \ge p$ by the Gear--Wells bookkeeping
+(see Thm.~\ref{thm:remainder}'s setting), cubic Hermite sufficing through
+$p=2$ \citep{gear1984,fok2010}).
+
+\begin{theorem}[Regime boundary]\label{thm:regime}
+Forcing the fast species onto the slow species' optimal step
+$\dt^\ast=\tau_2=\dx^2/6D_2$ is stable for the fast species iff
+\[
+r := D_1/D_2 \;\le\; 3 .
+\]
+For $r>3$ the shared step is unconditionally unstable and subcycling is
+mandatory.
+\end{theorem}
+\begin{proof}[Proof sketch]
+FTCS stability needs $\dt^\ast \le \dx^2/2D_1$; substituting
+$\dt^\ast = \dx^2/6D_2$ gives $r\le3$. The threshold is grid-independent
+because both sides scale as $\dx^2$.
+\end{proof}
+\noindent\emph{Status:} \tagS --- derived from plain FTCS; the corrected
+scheme's stability region (Prop.~\ref{prop:stability} is scalar-only) has not
+been re-derived, so the boundary is supported, not proven, for the corrected
+coupled scheme (open item \ref{open:stab}).
+
+\begin{theorem}[Remainder-step uniformity]\label{thm:remainder}
+Under subcycling with macro step $H=\tau_2$, $n=\lfloor r\rfloor$ exact
+substeps of $\tau_1$, and one remainder substep $\rho = \tau_1\,
+\mathrm{frac}(r)$: the remainder's leading error
+$e(\rho) = -\tfrac{D_1^2}2\,\rho(\tau_1-\rho)\,\tilde u_{xxxx}+\cdots$
+vanishes at both $\mathrm{frac}(r)\to0$ and $\to1$, and obeys the uniform bound
+$|e(\rho)| \le \tfrac{D_1^2\tau_1^2}8 |\tilde u_{xxxx}| = O(\dx^4)$ for all
+$\mathrm{frac}(r)\in[0,1)$.
+\end{theorem}
+\begin{proof}[Proof sketch]
+$\rho(\tau_1-\rho)$ is a downward parabola on $[0,\tau_1]$, maximal at the
+midpoint, zero at both ends. No value of the step ratio is singular; the
+discriminator is how \emph{often} a mismatched step is taken (once per cycle
+here), not how close $r$ is to an integer.
+\end{proof}
+\noindent\emph{Status:} \tagP for the leading (Group-1) term --- explicitly a
+leading-only result; the Group-2/3 bookkeeping at arbitrary $\rho$ is open
+(item \ref{open:higher}). Verified end-to-end at the integer ratio $r=4$
+($\rho=0$, four exact substeps) in \texttt{examples/test\_regime2\_D1\_1\_D2\_4.py}
+\tagV for the regime-2 algorithm as a whole.
+
+\subsection{The coupled contradiction: the ledger in action}
+
+\begin{corollary}[Under separate stepping; \textbf{contradicted}]\label{cor:coupled}
+\emph{Claim as originally drafted:} evolving the M-block at $\dto^{(i)}$ and the
+V-block at $\dto^{(ij)}$ (2:1 in the hierarchy) preserves fourth-order accuracy
+in both blocks with three-point stencils.
+\end{corollary}
+
+This claim is tagged \tagC. The harness \texttt{coupled\_verify.py}
+(\texttt{code/verify/21ratio/}) implements the $\S8.9/\S9.8$ corrections
+faithfully against a validated high-resolution reference and measures
+\textbf{order $\approx 1.99$ (M) and $2.02$ (V)} --- second order, not fourth ---
+while confirming (i) the 2:1 ratio exactly, and (ii) that the corrections
+reduce error constants by $3$--$40\times$ over plain forward Euler, so the
+corrections are directionally right but an $O(\dx^2)$ defect survives. Two
+hypotheses, not yet distinguished:
+\begin{enumerate}
+\item[(A)] \textbf{Derivation gap:} the coupled corrections miss a cross-term
+(e.g.\ the discrete $\ddx$ acting on a \emph{different} coupled field inside
+$C^{(1)}$ injects an $O(\dx^2)$ error that caps the scheme, unlike the scalar
+case where the correction acts on its own field), or the synchronization of
+clocks leaves a residual.
+\item[(B)] \textbf{Harness bug} in exactly the coupled-field plumbing.
+\end{enumerate}
+We report both because the ledger does not allow burying either: until this is
+resolved, the coupled fourth-order claim is \emph{withdrawn from} the paper's
+proven core, and the honest statement is: \emph{scalar fourth order is verified;
+coupled fourth order is open, with a reproducible contradiction and a
+candidate mechanism.} The discrepancy gates submission (\S\ref{sec:open}).

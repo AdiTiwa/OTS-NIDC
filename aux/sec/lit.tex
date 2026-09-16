@@ -1,0 +1,109 @@
+% Section 2: Literature
+\section{Relation to prior work}\label{sec:lit}
+
+\subsection{The OTS-NIDC lineage}
+
+The method descends from Chu \citep{chu2011}, who combined optimal time-step
+selection with non-iterative defect correction to boost finite-difference
+schemes for linear and semilinear PDEs to fourth order on three-point stencils,
+with extensions to more dimensions and irregular domains. Chu and Lambers
+\citep{chu2009} extended OTS to spatially \emph{variable} leading coefficients
+via an optimal-grid transformation, with the constant-coefficient step
+$\dto = \dx^2/6D$ recovered when the coefficient is constant. Razi, Attar and
+Vedula \citep{razi2015} coupled grid adaptation with non-iterative defect
+correction; our critique notes (\texttt{literature/Razi2015\_critique.md})
+observe that their joint optimization degenerates to the OTS step for linear
+coupling operators --- a point we return to when justifying why the coupled
+corrections of \S\ref{sec:coupled} need no further optimization.
+
+The present work is, to our knowledge, the first systematic extension of this
+lineage to \emph{stochastic} equations --- accomplished not by discretizing a
+random field but by moving up one level of abstraction: the moment hierarchy of
+the SPDE is itself a family of deterministic reaction--diffusion equations, so
+the entire deterministic theory applies unmodified (\S\ref{sec:stochastic}).
+
+\subsection{SPDE numerics: the pathwise mainstream}
+
+The numerical SPDE literature is dominated by pathwise schemes. The textbook
+frame is Lord, Powell and Shardlow \citep{lord2014}, building on
+Kloeden--Platen \citep{kloeden1992}. Within it:
+
+\begin{itemize}
+\item \textbf{Euler--Maruyama and Milstein.} The canonical schemes, weak order 1
+and strong order $1/2$ (Milstein: strong order 1 for commutative noise)
+\citep{kloeden1992,leonhard2014,hajiali2023}. For SPDEs the spatial
+semi-discretization error typically dominates; strong rates are further limited
+by the spatial regularity of the noise. Every pathwise method pays a Monte Carlo
+factor $O(M^{-1/2})$ to reach moments. That is the competitor baseline for this
+paper: identical statistics, obtained $M$ times over.
+
+\item \textbf{The Davie--Gaines barrier.} Davie and Gaines \citep{davie2001}
+proved that numerical schemes for parabolic SPDEs driven by space-time white
+noise, converging through Wiener increments, cannot exceed strong order $1/2$ in
+time. This is the fundamental obstruction to high-order \emph{pathwise} schemes
+for \eqref{eq:spde} --- and it is precisely what the moment-level reformulation
+sidesteps, by never entering the pathwise problem.
+
+\item \textbf{Weak-rate separation.} Bolin, Kirchner and Kov\'acs
+\citep{bolin2018} and Cui--Sun \citep{cui2023} exemplify a robust phenomenon:
+weak rates can exceed strong rates for SPDE approximations. Our contribution
+pushes this to its structural limit: at the moment level, the problem is
+deterministic, so the ``weak rate'' is simply the accuracy of a deterministic
+solver --- arbitrarily high, at the price of the closure.
+
+\item \textbf{Structure-preserving alternatives.} Exponential integrators treat
+the stiff linear part exactly \citep{lord2010}; modified semi-implicit schemes
+evolve each Fourier mode exactly as an Ornstein--Uhlenbeck process
+\citep{tambue2016}; splitting schemes preserve state-space structure in chemical
+Langevin dynamics \citep{jovanovski2025,ulander2024}. These are the honest
+competitors for stiff reaction--diffusion SPDEs. They remain pathwise; the
+per-mode-exact philosophy, however, is the same one that makes our decoupled
+M/V-block stepping work (\S\ref{sec:coupled}).
+\end{itemize}
+
+\subsection{Moment methods and closures}
+
+The moment hierarchy approach has a long history in kinetic theory and
+population dynamics; the closure problem is its central obstruction. Gaussian
+(Wick) closure is exact for linear dynamics driven by Gaussian noise and
+otherwise a weak-noise approximation that fails for bimodal or intermittent
+responses --- a point developed carefully in the companion primer
+(\texttt{moment\_hierarchy\_primer.tex}) and used as the scope boundary here.
+The NIDC framework's position is deliberately narrow: it claims nothing about
+closures, only that \emph{when a moment system closes, it can be solved to
+arbitrary order on cheap stencils}.
+
+\subsection{Multirate time stepping}
+
+Resolving competing optimal steps (\S\ref{sec:coupled}) is a multirate problem.
+The classical theory of Gear--Wells \citep{gear1984} and Fok--Rosales
+\citep{fok2010} gives the interpolation-order bookkeeping used in
+\S\ref{sec:coupled} (cubic Hermite suffices through $p=2$); Richardson-style
+extrapolation \citep{oates2024,
+debrabant2011} is the post-processing alternative that buys one order at the
+cost of two coordinated solves and shared-noise synchronization, whereas NIDC
+buys two orders inside a single solve. Recent multirate partitioned Runge--Kutta
+methods \citep{roberts2018} are the modern heavy machinery for the same problem
+class.
+
+\subsection{Positioning summary}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Method & Moment accuracy & Cost to moments \\
+\midrule
+Euler--Maruyama \citep{lord2014} & weak order 1 & $O(M)$ paths, $O(M^{-1/2})$ MC error \\
+Milstein \citep{leonhard2014} & weak order $\ge 1$ & same, more work per path \\
+Richardson on FD+EM \citep{oates2024} & weak order 2 & two solves, shared noise \\
+Exponential integrators \citep{lord2010} & inherits time integrator & pathwise + MC \\
+\textbf{OTS-NIDC (this work)} & \textbf{4th order (moment PDE solve)} & \textbf{one deterministic solve, single pass} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The comparison is deliberately asymmetric: the pathwise methods deliver
+information (paths) that OTS-NIDC does not attempt. The claim is narrower and
+cheaper: \emph{if the deliverable is moments, and the noise model closes the
+hierarchy, then the moments are a deterministic PDE problem and should be solved
+like one.}

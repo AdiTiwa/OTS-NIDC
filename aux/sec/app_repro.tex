@@ -1,0 +1,51 @@
+% Appendix: reproducibility manifest
+\section{Reproducibility manifest}\label{app:repro}
+
+All artifacts live in the \texttt{OTS-NIDC} repository. Verified numbers were
+produced by the scripts below; each ledger entry in the front matter names its
+artifact.
+
+\begin{center}
+\begin{tabular}{@{}p{0.34\textwidth}p{0.30\textwidth}p{0.27\textwidth}@{}}
+\toprule
+Artifact & Command (under \texttt{code/}) & Ledger claims supported \\
+\midrule
+\texttt{implementation/convergence\_test.py} &
+\texttt{python convergence\_test.py} (venv w/ numpy, scipy, matplotlib) &
+Scalar 4.01/2.01 orders (Table~\ref{tab:scalar}); FD-cap negative control \\
+\texttt{implementation/baselines.py} &
+(imported by above; \texttt{euler\_maruyama\_moment} for EM) &
+EM baseline (S); noise-scaling convention \\
+\texttt{verify/21ratio/coupled\_verify.py} &
+\texttt{python coupled\_verify.py} &
+2:1 ratio \tagV; coupled order $\approx2$ \tagC \\
+\texttt{stability/stability\_check.py} &
+\texttt{python stability\_check.py} &
+CFL shrink factor; stability at $\dto$ \\
+\texttt{examples/test\_regime1\_D1\_3\_D2\_1.py},
+\texttt{test\_regime2\_D1\_1\_D2\_4.py} &
+\texttt{python run\_tests.py} &
+Regime-1 mismatch correction; regime-2 subcycling ($r=4$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Environments.} Scalar and coupled harnesses ran under per-directory
+virtual environments (numpy/scipy). The stability analysis is analytic with a
+numeric spot-check ($\eta=0.3$). Dates of the archived outputs are recorded in
+the respective \texttt{results.md} / verification files; the paper cites those
+archived outputs, and regeneration is expected to reproduce them to machine
+precision (deterministic seeds: \texttt{seed=12345} in \texttt{baselines.py}).
+
+\paragraph{Honesty notes carried from the harnesses.}
+(i) The coupled verification reference was itself validated against the known
+scalar exact solution before use. (ii) The regime-2 example uses an exact
+integer ratio ($r=4$, $\rho=0$); fractional $\rho$ remains covered by the
+leading-order bound only (Thm.~\ref{thm:remainder}). (iii) Page numbers in the
+literature-pointer notes are approximate (form-feed counts); verbatim excerpts
+are preserved in \texttt{notes/Di\_eq\_D\_literature\_pointers.md}.
+
+\paragraph{Compilation.}
+\begin{verbatim}
+cd paper && latexmk -pdf main.tex   # auxiliary output under ../aux/
+\end{verbatim}
