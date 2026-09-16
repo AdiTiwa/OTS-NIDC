@@ -1,0 +1,104 @@
+% Frontmatter: abstract, status ledger, changelog — the living-paper contract
+\begin{abstract}
+This paper extends the optimal time-step selection with non-iterative defect
+correction (OTS-NIDC) framework of Chu (2011) from deterministic reaction--diffusion
+equations to the \emph{moment hierarchy} of stochastic reaction--diffusion equations
+with linear multiplicative noise. Because It\^o's formula closes the hierarchy exactly
+for affine drift with linear multiplicative noise, every moment equation is a
+deterministic reaction--diffusion PDE to which OTS-NIDC applies verbatim: a single
+optimal step $\dto = \dx^2/(6D)$, independent of both the moment order and the noise
+amplitude, cancels the leading truncation term, and an explicit correction restores
+fourth-order global accuracy on a three-point stencil. We derive the scalar family,
+the coupled mean-field/second-moment systems, and the competing-time-step problem
+that arises between them, with resolution via decoupled blocks and multirate
+subcycling with an exact mismatch correction. All claims are entered in a
+\emph{status ledger}: verified numerically (V), proven in sketch (P), stable-region
+supported (S), open (O), or contradicted by our own verification harness (C) --- most
+notably, the coupled system currently measures at second order, not the asserted
+fourth, and we report this rather than bury it. The final section maps the road
+out of the linear world: Cole--Hopf makes the stochastic Burgers equation a
+multiplicative-noise stochastic heat equation for $\phi$, so weakly convergent
+schemes for $\phi$ moments transfer to exponential functionals of Burgers ---
+the log-normal observables that fail Gaussian closure --- while the KPZ regime
+$u = \log \phi$ retains well-defined roughness observables in the same window
+where the $\phi$-moments themselves diverge. We frame what is proved, what is
+plausible, and what must be rebuilt, and invite correction.
+\end{abstract}
+
+\tableofcontents
+
+% ---------------------------------------------------------------------------
+\section*{How to read this paper (the living-paper contract)}
+\addcontentsline{toc}{section}{How to read this paper (the living-paper contract)}
+
+This is a \emph{living paper}: a submission-track manuscript that carries its own
+epistemic state. It will be re-released as derivations firm up, verification
+harnesses expand, and open items resolve. Two mechanisms enforce that:
+
+\begin{enumerate}
+\item \textbf{Status ledger.} Every substantive mathematical or numerical claim in
+the text carries one of five tags, with the tag defined by a reproducible artifact
+in the repository, not by confidence:
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Tag & Meaning \& evidence required \\
+\midrule
+\tagV & \textbf{Verified.} A convergence/stability number produced by a script in
+\texttt{code/} against an independent exact or high-resolution reference.\\
+\tagP & \textbf{Proven (sketch).} A complete argument the reader can check line by
+line; no numerical artifact, but no unproved lemma either.\\
+\tagS & \textbf{Supported.} Backed by an analysis artifact whose conclusion is
+weaker than the claim (e.g.\ scalar von Neumann used for a coupled statement).\\
+\tagO & \textbf{Open.} Stated as a target or conjecture; no artifact yet.\\
+\tagC & \textbf{Contradicted.} Our own harness produces numbers inconsistent with
+the claim. Kept in the text, with the discrepancy flagged.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\item \textbf{Change log.} Every release records what moved between states.
+\end{enumerate}
+
+\subsection*{Status ledger (current release)}
+
+\begin{center}
+\begin{tabular}{@{}p{0.62\textwidth}cl@{}}
+\toprule
+Claim (where) & Status & Artifact \\
+\midrule
+Scalar OTS: $\dto=\dx^2/(6D)$ cancels the $u_{xxxx}$ LTE term (Thm.~\ref{thm:ots}) & \tagP & \S\ref{sec:method} derivation; \texttt{sign-change.tex} \\
+$\dto$ independent of moment parameter $\alpha$ and noise amplitude $\sigma$ (Cor.~\ref{cor:indep}) & \tagP & binomial identity, \S\ref{sec:method} \\
+$p=1$ NIDC sign: $C^{(1)}$ must be \emph{added} (Rem.~\ref{rem:sign}) & \tagV & \texttt{code/implementation/results.md}: 4.01 vs 2.01 order \\
+Scalar $p=1$ global order 4 at $\dto$ (Thm.~\ref{thm:p1}) & \tagV & \texttt{results.md}; 5-point-check harness \\
+4th-order FD + plain FE caps at order 2 (same step) & \tagV & \texttt{results.md} \\
+Von Neumann: NIDC shrinks CFL by factor $1-\eta/18+O(\eta^2)$; stable at $\dto$ & \tagV & \texttt{code/stability/stability\_analysis.md} \\
+Moment hierarchy closes for affine drift + linear multiplicative noise (Prop.~\ref{prop:closure}) & \tagP & \S\ref{sec:stochastic}; \texttt{moment\_hierarchy\_primer.tex} \\
+M-block/V-block exact decoupling (Prop.~\ref{prop:decouple}) & \tagP & \texttt{competing-timesteps-multirate.md} \S2 \\
+2:1 step ratio in the moment hierarchy $D_i=D$ & \tagV & \texttt{notes/Di\_eq\_D\_verification.md}: ratio $2.0000$ at $N=32,64,128$ \\
+Regime boundary $r^\ast = 3$ from FTCS at shared step (Thm.~\ref{thm:regime}) & \tagS & derived; scalar FTCS argument (coupled scheme not analyzed) \\
+Regime 1 exact mismatch correction at any $\epsilon$ (Thm.~\ref{thm:mismatch}) & \tagV & \texttt{examples/test\_regime1\_D1\_3\_D2\_1.py} \\
+Remainder-step error uniformly $O(\dx^4)$ in $\mathrm{frac}(r)\in[0,1)$ (Thm.~\ref{thm:remainder}) & \tagP & \texttt{competing-timesteps} \S5.2 (leading term only) \\
+Coupled M+V, separate stepping: 4th order in both (Cor.~\ref{cor:coupled}) & \tagC & \texttt{coupled\_verify.py}: measured order $\approx 2.0$ both blocks \\
+$p\ge 2$ NIDC tower at $(2p+3)$-point stencil & \tagO & stencil-bound argument in \S\ref{sec:method}; no harness \\
+Cole--Hopf transfer of weak schemes to Burgers functionals (Thm.~\ref{thm:hopf}) & \tagP & \S\ref{sec:weird}; mild-solution representation \\
+KPZ-regime divergence of raw $\phi$-moments while $u$-observables stay finite & \tagS & literature argument; no numerics in this repo \\
+MLMC order-$\ge2$ weak base eliminates $\log\epsilon$ factor & \tagO & cost argument, \S\ref{sec:open} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Change log}
+
+\begin{description}
+\item[v0.3 (2026-09-16).] First public living-paper release. Full derivation arc
+assembled (scalar $\to$ coupled $\to$ stochastic $\to$ Cole--Hopf/KPZ outlook).
+Evidence audit performed: the 2:1 ratio claim independently re-verified; the
+coupled fourth-order claim \emph{demoted to \tagC} after \texttt{coupled\_verify.py}
+measured order $\approx2$; the scalar sign correction (2026-07-09) incorporated
+throughout; stability direction corrected (NIDC shrinks, not expands, the CFL
+window).
+\item[v0.1--0.2 (2026-07).] Internal working notes: derivation documents
+\texttt{OTS-NIDC.md}, multirate note, sign-change proof, stability analysis;
+scalar $p=1$ implementation verified at 4th order; coupled harness built.
+\end{description}

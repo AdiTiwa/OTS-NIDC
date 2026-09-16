@@ -1,0 +1,117 @@
+% Section 5: Stochastic reaction-diffusion
+\section{The method III: stochastic reaction--diffusion via the moment hierarchy}
+\label{sec:stochastic}
+
+Everything so far is deterministic. The stochastic payload enters through a
+single structural fact: \emph{for the right noise class, the SPDE's moments obey
+closed deterministic reaction--diffusion equations} --- the exact family
+\eqref{eq:family} -- \eqref{eq:coupledrd} of \S\ref{sec:method}--\ref{sec:coupled}.
+
+\subsection{The hierarchy and its exact closure}
+
+\begin{proposition}[Moment closure for linear multiplicative noise]\label{prop:closure}
+Let $u$ solve \eqref{eq:spde} (It\^o, space-time white noise, linear
+multiplicative noise $\sigma u\,\dot W$). Then $M_k = \E[u^k]$ satisfies the
+closed deterministic reaction--diffusion equation
+\begin{equation}\label{eq:moments}
+\partial_t M_k \;=\; D\,\partial_{xx}M_k \;+\; \underbrace{\tfrac{k(k-1)}2\,\sigma^2}_{=\,\alpha_k}\;M_k,
+\qquad k = 1, 2, \dots
+\end{equation}
+i.e.\ \eqref{eq:family} with $\alpha = \alpha_k$. More generally, for the
+$N$-species linear system
+$du_i = (D_i\partial_{xx}u_i + \sum_j R_{ij}u_j)\,dt + \sum_k\sigma_{ik}u_k\,dW_k$,
+the mean fields $m_i=\E[u_i]$ obey the closed M-system
+\eqref{eq:coupledrd} and the covariances $V_{ij}=\E[u_iu_j]$ obey the closed
+V-system
+\begin{equation}\label{eq:V}
+\partial_t V_{ij} = (D_i+D_j)\,\partial_{xx}V_{ij}
++ \sum_k R_{ik}V_{kj} + \sum_k R_{jk}V_{ik}
++ \sum_k \sigma_{ik}\sigma_{jk}V_{kk}.
+\end{equation}
+\end{proposition}
+\begin{proof}[Proof sketch]
+Apply It\^o's formula (finite-dimensional, then per grid cell / Fourier mode) to
+$\Phi(u)=u^k$ and to the product $\Phi(u)=u_iu_j$. The drift term survives
+expectation; the It\^o integral against $dW$ has zero mean; the quadratic
+variation contributes $\frac12\Phi''(u)\,\sigma^2u^2\,dt$, which for $\Phi=u^k$
+is $\frac{k(k-1)}2\sigma^2u^k\,dt$ --- proportional to $M_k$ itself, which is
+the closure. For \eqref{eq:V} the product rule adds the covariation
+$\sum_k\sigma_{ik}\sigma_{jk}u_k^2dt$, whose expectation is the $V_{kk}$ term.
+Full derivations: \texttt{OTS-NIDC.md} \S7--9; \texttt{moment\_hierarchy\_primer.tex}.
+\end{proof}
+\noindent\emph{Status:} \tagP. Two scope qualifiers carry the proposition's
+honest weight. (i) \emph{Discretized regime:} for genuine space-time white noise
+the continuum second moment diverges ($\delta(0)$); the closure is well-posed on
+the spatial discretization or for trace-class (colored) noise, which is the
+regime every finite-difference method inhabits anyway. (ii) \emph{Closure is
+structural:} exact for additive or linear-multiplicative noise with affine
+drift; fails for polynomial reactions of degree $\ge2$ (Fisher--KPP: $m_1$ needs
+$m_2$, $m_2$ needs $m_3$, \dots) and for nonlinear noise (chemical Langevin
+closes at no finite order \citep{jovanovski2025}).
+
+\subsection{What the deterministic theory immediately buys}
+
+Proposition~\ref{prop:closure} makes \S\ref{sec:method} apply verbatim to every
+moment equation. The stochastic highlights:
+
+\begin{enumerate}
+\item \textbf{One step for the whole hierarchy} (Cor.~\ref{cor:indep}):
+$\dto = \dx^2/6D$ governs every $M_k$ simultaneously; $\sigma$ and $k$ appear
+only in the correction coefficients \eqref{eq:C1} --- e.g.\ the mean ($\alpha=
+\frac12\sigma^2$) and second moment ($\alpha=\sigma^2$) are advanced by the
+same step, different corrections.
+\item \textbf{The It\^o drift is a defect, not an obstacle:} the noise-induced
+reaction term is explicitly computable, so it slots into $C^{(1)}$ exactly as
+any reaction term would. This is the conceptual bridge of the paper: It\^o
+calculus converts noise into reaction, and OTS-NIDC's cancellation is
+indifferent to where the reaction came from.
+\item \textbf{Two blocks, two steps, no coupling} (Prop.~\ref{prop:decouple}):
+mean and second-moment systems decouple exactly; in the hierarchy $D_i=D$ the
+2:1 step ratio is exact \tagV.
+\item \textbf{Weak, not strong, by construction:} the method never samples
+$\dot W$, so the Davie--Gaines strong-order-$1/2$ ceiling \citep{davie2001}
+governs a problem we do not solve. The delivered object is fourth-order
+convergence of the computed moment fields to the true moments of the closed
+system \tagV (scalar, Table~\ref{tab:scalar}); conversion to statements about
+the SPDE law rides entirely on Proposition~\ref{prop:closure}'s exact closure.
+\item \textbf{Stability transfers:} the growing-moment case is exactly the
+$\eta\ge0$ regime of Prop.~\ref{prop:stability} --- the correction marginally
+\emph{shrinks} the CFL window and is comfortably stable at $\dto$ \tagV.
+\end{enumerate}
+
+\subsection{The competitor, stated fairly}
+
+Euler--Maruyama on \eqref{eq:spde} estimates $M_k$ from $M$ paths with error
+$O(\dt) + O(M^{-1/2})$ per point; our implementation (\texttt{baselines.py},
+\texttt{euler\_maruyama\_moment}) exists for exactly this comparison
+\tagS\footnote{The EM baseline is implemented and its noise scaling
+($\sigma u\sqrt{\dt/\dx}\,Z$ per cell per step) is the standard space-time white
+noise discretization; the head-to-head convergence figure against it is not yet
+in the results ledger --- it is scheduled with the benchmarking gate of
+\S\ref{sec:open}, per the project's own decision to hold benchmarking until
+scoping stabilized.}. The structural comparison, however, is already decisive
+and does not need the figure: for the \emph{moments alone}, the pathwise route
+pays $M$ path-solves plus Monte Carlo variance to approximate what the moment
+route computes deterministically --- and the moment route's solver is
+fourth-order where EM is weak-first. The pathwise route is irreplaceable when
+paths are the product (extremes, hitting, filtering); for moment delivery under
+exact closure it is dominated.
+
+\subsection{Where the noise model ends}
+
+Three extensions are visible from inside the current theory, all open:
+\begin{itemize}
+\item \textbf{Colored noise} (trace-class $Q$): the closure proof goes through
+with $\sigma^2 \to$ the covariance trace structure; the M/V systems acquire
+nonlocal reaction kernels. The OTS cancellation, being diffusive-local, should
+survive with kernel-aware corrections \tagO.
+\item \textbf{Noise discretization interplay:} how Wiener-increment sampling on
+the grid (piecewise-constant vs.\ linear-in-time noise,
+\citep{petersson2022}) interacts with the NIDC cancellation --- for the moment
+route there is no sampled noise, which is precisely the advantage; the question
+becomes how to \emph{validate} moment solvers against pathwise references
+fairly \tagO.
+\item \textbf{Boundary conditions for $V$:} Neumann data on $u$ induce
+$\partial_n V_{ij}=0$ on $\partial\Omega\times\Omega \cup \Omega\times
+\partial\Omega$; used but not proven in the coupled harness \tagO.
+\end{itemize}

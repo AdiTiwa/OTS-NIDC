@@ -1,0 +1,123 @@
+% Section 6: The weird stuff — Cole-Hopf, KPZ
+\section{The nonlinear frontier: Cole--Hopf, stochastic Burgers, and KPZ}
+\label{sec:weird}
+
+Everything above lives inside the closure-exact class: linear reaction, linear
+(or additive) multiplicative noise. This section maps the road out --- and is
+deliberately the part of the paper where the ledger does the most work, because
+the beautiful connection here is also the one where the current framework
+\emph{cannot follow}.
+
+\subsection{Stochastic Burgers is a stochastic heat equation in disguise}
+
+The forced stochastic Burgers equation (in 1D, written for the slope $u$) is
+\begin{equation}\label{eq:burgers}
+\partial_t u + u\,\partial_x u = \nu\,\partial_{xx}u \qquad\Longleftrightarrow\qquad
+u = -2\nu\,\partial_x\log\phi .
+\end{equation}
+Under Cole--Hopf, $\phi$ solves a stochastic heat equation with
+\emph{multiplicative} noise. In its simplest well-posed version (It\^o, with the
+noise entering as $\sigma\,\phi\,\xi$ plus the It\^o correction absorbed into
+the equation for $\phi$), $\phi$ is \emph{exactly} the linear-multiplicative-
+noise model \eqref{eq:spde} --- the protagonist of \S\ref{sec:stochastic}:
+
+\begin{theorem}[Cole--Hopf transfer of weak schemes]\label{thm:hopf}
+Let $\phi$ solve the linear multiplicative-noise stochastic heat equation, so
+its moments $M_k^\phi = \E[\phi^k]$ satisfy the closed family \eqref{eq:moments}
+and are computable by OTS-NIDC to fourth order (Table~\ref{tab:scalar}).
+Then every moment of the exponential functional $\phi^k(x,t)$ of the Burgers
+velocity field --- in particular the $k$-th moments of
+$u(x,t) = -2\nu\,\partial_x\log\phi(x,t)$ that are expressible as
+derivatives of $\log M_k^\phi$ or of ratios of $\phi$-moments --- inherits that
+accuracy, because $u$ is a fixed smooth functional of the moments and the
+scheme converges in exactly the norm that functional reads.
+\end{theorem}
+\begin{proof}[Proof sketch]
+Mild solutions: $\phi(t) = S_t\phi_0\cdot\mathcal{E}_t$ with
+$\mathcal{E}_t = \exp(\sigma W_t - \frac12\sigma^2 t\,\cdot)$ the stochastic
+exponential (a strictly positive martingale field); hence $\phi>0$ and
+$\log\phi$ is smooth wherever $\phi$ is. Moments of $\phi$ are the closed
+hierarchy; derivatives of $\log$-moments are smooth functions of those moments,
+so a solver converging at order $q$ in the moments yields order-$q$ accuracy in
+any fixed derivative of their logarithms. The Cole--Hopf identity converts
+those to moments of Burgers observables.
+\end{proof}
+\noindent\emph{Status:} \tagP. Why this matters: it moves \emph{two} canonical
+nonlinear objects --- Burgers velocity statistics and log-normal-type fields
+--- inside the reach of a linear theory, without any moment truncation. Note
+the honest fine print: $\E[u]$ and higher $u$-moments involve
+$\E[\partial_x\phi/\phi]$, a \emph{ratio} of moments, not a moment --- the
+transfer in Theorem~\ref{thm:hopf} is clean for quantities that are smooth
+functionals of the $M_k^\phi$ (e.g.\ $\partial_x \log \E[\phi^k]$, structure
+functions built from derivatives of log-moments), and requires ratio-variance
+care otherwise. Making this precise and tested is open (item \ref{open:hopf}).
+
+\subsection{The KPZ window: what stays finite when the moments leave}
+
+The Kardar--Parisi--Zhang equation is the log of the same field:
+$u = \log\phi$ turns the multiplicative-noise heat equation into
+\begin{equation}\label{eq:kpz}
+\partial_t u = \nu\,\partial_{xx}u + \tfrac{\lambda}2(\partial_x u)^2 + \eta ,
+\end{equation}
+with $\eta$ effective white noise and the It\^o drift folded into the
+nonlinearity. Here the relationship between finiteness and observability
+\emph{inverts}, and this inversion is the section's central observation.
+
+\begin{proposition}[KPZ window]\label{prop:kpz}
+In 1D, KPZ itself is well-posed (the Cole--Hopf solution is the definition of
+its solution), and its natural observables --- the height field $u$, its
+roughness $\mathrm{Var}[u]$, spatial correlations of $\log\phi$ --- remain
+finite and well-defined for all time. It is the raw moments of $\phi$,
+$M_k^\phi=\E[\phi^k]$, that diverge (log-normal tails, $M_k^\phi \sim
+e^{\frac12k^2\sigma^2 t\cdot}$): beyond a time of order
+$t_\ast \sim \log K / \sigma^2$ even the $K$-th moment overflows any fixed
+precision. The divergence is a property of the \emph{observable} $M_k^\phi$,
+not of the dynamics.
+\end{proposition}
+\begin{proof}[Proof sketch]
+$\phi$ is the stochastic exponential: $\phi = \exp(\sigma W_t -
+\frac12\sigma^2t)$ applied to the diffused initial data, so
+$\log\phi$ is Gaussian at each point with variance $\sigma^2 t$ (per mode, with
+diffusive decorrelation). $\E[\phi^k]$ then carries the
+$\exp(\frac12 k^2\sigma^2t)$ log-normal factor --- finite for each fixed
+$t,k$, but overflowing IEEE double precision ($\sim e^{709}$) at $t \approx
+1418/(k^2\sigma^2)$, i.e.\ at practical times for even moderate $k\sigma$.
+Meanwhile $u=\log\phi$ has bounded Gaussian moments for all $t$.
+\end{proof}
+\noindent\emph{Status:} \tagS (literature + representation argument; no
+numerics in this repo). The practical reading for this paper:
+
+\begin{itemize}
+\item \textbf{Work in $u$-space observables.} Roughness, correlation functions
+of $u$, and $\log$-moment derivatives stay in the solver's finite window
+indefinitely; the recommended solver target for KPZ-adjacent problems is the
+$\log$-moment hierarchy, not the raw hierarchy.
+\item \textbf{But the closure is gone.} The equation \eqref{eq:kpz} for $u$ is
+\emph{nonlinear in the field}, so the moment hierarchy of $u$ does not close:
+$\E[(\partial_xu)^2]$ is a second moment feeding the mean equation, and the
+tower reopens. The exact-closure theorem (Prop.~\ref{prop:closure}) does not
+reach KPZ; Gaussian closure fails precisely here (log-normal intermittency is
+the textbook failure mode). Nothing in \S\ref{sec:method} applies to
+\eqref{eq:kpz} directly.
+\item \textbf{The window is nonetheless real.} What the theory \emph{can}
+deliver inside the window: (i) $\phi$-moments below the overflow time ---
+$K$ moments to time $t \sim \log K$, so a tower of solves extends the window
+logarithmically; (ii) all $u$-space statistics of the \emph{linear} problem
+(no KPZ nonlinearity), exactly; (iii) the Cole--Hopf bridge
+(Thm.~\ref{thm:hopf}) for the observables it covers. What it cannot yet
+deliver: direct high-order weak integration of the KPZ nonlinearity
+\eqref{eq:kpz} itself \tagO --- the honest frontier.
+\end{itemize}
+
+\subsection{Why this section is in the paper}
+
+A living paper should show its edges. The Cole--Hopf/KPZ connection is the
+most-cited potential application of moment-level solvers (turbulence
+analogues, directed polymers, growth interfaces), and it is also the setting
+where the paper's core machinery is \emph{not yet} valid beyond the linear
+window. Rather than claim the frontier or quietly omit it, we state the
+transfer theorem that does hold (\tagP), the window proposition that scopes
+it (\tagS), and the open problem that gates the rest (item \ref{open:kpz}):
+\emph{a closure scheme for the $(\partial_xu)^2$ moment tower that is exact in
+the same sense Prop.~\ref{prop:closure} is exact for linear noise --- or a
+proof that none exists.}

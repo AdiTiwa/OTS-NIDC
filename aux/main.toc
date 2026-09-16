@@ -1,0 +1,44 @@
+\contentsline {section}{How to read this paper (the living-paper contract)}{2}{section*.2}%
+\contentsline {section}{\numberline {1}Introduction}{4}{section.1}%
+\contentsline {subsection}{\numberline {1.1}The problem class}{4}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}The method in one paragraph}{4}{subsection.1.2}%
+\contentsline {subsection}{\numberline {1.3}Why this is not too good to be true: scope, in both directions}{4}{subsection.1.3}%
+\contentsline {paragraph}{Strong-convergence barriers do not apply.}{4}{section*.5}%
+\contentsline {paragraph}{Closure validity is a separate, upstream question.}{5}{section*.6}%
+\contentsline {subsection}{\numberline {1.4}Contributions and structure}{5}{subsection.1.4}%
+\contentsline {section}{\numberline {2}Relation to prior work}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}The OTS-NIDC lineage}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}SPDE numerics: the pathwise mainstream}{6}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}Moment methods and closures}{6}{subsection.2.3}%
+\contentsline {subsection}{\numberline {2.4}Multirate time stepping}{7}{subsection.2.4}%
+\contentsline {subsection}{\numberline {2.5}Positioning summary}{7}{subsection.2.5}%
+\contentsline {section}{\numberline {3}The method I: scalar OTS-NIDC on the reaction--diffusion family}{7}{section.3}%
+\contentsline {subsection}{\numberline {3.1}The scalar family and the optimal time step}{7}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}The first-level correction, and the sign that matters}{8}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}The $p$-level tower and the stencil bound}{9}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Stability}{9}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Efficiency profile}{10}{subsection.3.5}%
+\contentsline {section}{\numberline {4}The method II: coupled reaction--diffusion systems}{10}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Mean-field and second-moment blocks}{10}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}The M/V decoupling}{10}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Competing optimal steps within a block}{11}{subsection.4.3}%
+\contentsline {paragraph}{Failure 1: shared step without correction.}{11}{section*.7}%
+\contentsline {paragraph}{Failure 2: naive splitting.}{11}{section*.8}%
+\contentsline {subsection}{\numberline {4.4}The coupled contradiction: the ledger in action}{12}{subsection.4.4}%
+\contentsline {section}{\numberline {5}The method III: stochastic reaction--diffusion via the moment hierarchy}{12}{section.5}%
+\contentsline {subsection}{\numberline {5.1}The hierarchy and its exact closure}{13}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}What the deterministic theory immediately buys}{13}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}The competitor, stated fairly}{14}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Where the noise model ends}{14}{subsection.5.4}%
+\contentsline {section}{\numberline {6}The nonlinear frontier: Cole--Hopf, stochastic Burgers, and KPZ}{14}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Stochastic Burgers is a stochastic heat equation in disguise}{14}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}The KPZ window: what stays finite when the moments leave}{15}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Why this section is in the paper}{16}{subsection.6.3}%
+\contentsline {section}{\numberline {7}Open problems and the submission gate}{16}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Open items, ordered by what they block}{16}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}The submission gate}{17}{subsection.7.2}%
+\contentsline {subsection}{\numberline {7.3}Reproducibility}{17}{subsection.7.3}%
+\contentsline {section}{\numberline {A}Reproducibility manifest}{17}{appendix.A}%
+\contentsline {paragraph}{Environments.}{18}{section*.9}%
+\contentsline {paragraph}{Honesty notes carried from the harnesses.}{18}{section*.10}%
+\contentsline {paragraph}{Compilation.}{18}{section*.11}%

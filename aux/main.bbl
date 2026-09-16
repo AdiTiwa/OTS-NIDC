@@ -1,0 +1,148 @@
+\begin{thebibliography}{20}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Bolin et~al.(2018)Bolin, Kirchner, and Kov{\'a}cs]{bolin2018}
+David Bolin, Kristin Kirchner, and Mih{\'a}ly Kov{\'a}cs.
+\newblock Weak convergence of {G}alerkin approximations for fractional elliptic
+  stochastic {PDE}s with spatial white noise.
+\newblock \emph{Electronic Journal of Probability}, 2018.
+\newblock arXiv:1711.05188.
+
+\bibitem[Chu(2011)]{chu2011}
+Kevin~T. Chu.
+\newblock Boosting the accuracy of finite difference schemes via optimal time
+  step selection and non-iterative defect correction.
+\newblock \emph{Applied Mathematics and Computation}, 218\penalty0
+  (7):\penalty0 3596--3614, 2011.
+\newblock \doi{10.1016/j.amc.2011.08.108}.
+\newblock arXiv:0811.2847.
+
+\bibitem[Chu and Lambers(2009)]{chu2009}
+Kevin~T. Chu and James~V. Lambers.
+\newblock Using optimal time step selection to boost the accuracy of {FD}
+  schemes for variable-coefficient {PDEs}.
+\newblock In \emph{Proceedings of the International Conference on Applied and
+  Engineering Mathematics (ICAEM), World Congress on Engineering}, 2009.
+
+\bibitem[Cui and Sun(2023)]{cui2023}
+Jianbo Cui and Liying Sun.
+\newblock Weak approximation for stochastic reaction-diffusion equation near
+  sharp interface limit.
+\newblock \emph{arXiv preprint}, 2023.
+\newblock arXiv:2307.08241.
+
+\bibitem[Davie and Gaines(2001)]{davie2001}
+A.~M. Davie and J.~G. Gaines.
+\newblock Convergence of numerical schemes for the solution of parabolic
+  stochastic partial differential equations.
+\newblock \emph{Mathematics of Computation}, 70\penalty0 (233):\penalty0
+  121--134, 2001.
+\newblock \doi{10.1090/S0025-5718-00-01224-2}.
+
+\bibitem[Debrabant and Lang(2011)]{debrabant2011}
+Kristian Debrabant and Jens Lang.
+\newblock On asymptotic global error estimation and control of finite
+  difference solutions for semilinear parabolic equations.
+\newblock \emph{arXiv preprint}, 2011.
+\newblock arXiv:0911.2656.
+
+\bibitem[Fok and Rosales(2010)]{fok2010}
+Pak-Wing Fok and Robert~R. Rosales.
+\newblock Multirate integration of axisymmetric step-flow equations.
+\newblock \emph{arXiv preprint}, 2010.
+\newblock arXiv:0810.2517.
+
+\bibitem[Gear and Wells(1984)]{gear1984}
+C.~William Gear and David~R. Wells.
+\newblock Multirate linear multistep methods.
+\newblock \emph{BIT Numerical Mathematics}, 24:\penalty0 484--502, 1984.
+
+\bibitem[Haji-Ali and Stein(2023)]{hajiali2023}
+Abdul-Lateef Haji-Ali and Andreas Stein.
+\newblock An antithetic multilevel {M}onte {C}arlo-{M}ilstein scheme for
+  stochastic partial differential equations with non-commutative noise.
+\newblock \emph{arXiv preprint}, 2023.
+\newblock arXiv:2307.14169.
+
+\bibitem[Jovanovski et~al.(2025)Jovanovski, Golightly, Picchini, and
+  Tamborrino]{jovanovski2025}
+Petar Jovanovski, Andrew Golightly, Umberto Picchini, and Massimiliano
+  Tamborrino.
+\newblock Simulation-based inference using splitting schemes for partially
+  observed diffusions in chemical reaction networks.
+\newblock \emph{arXiv preprint}, 2025.
+\newblock arXiv:2508.11438.
+
+\bibitem[Kloeden and Platen(1992)]{kloeden1992}
+Peter~E. Kloeden and Eckhard Platen.
+\newblock \emph{Numerical Solution of Stochastic Differential Equations}.
+\newblock Springer, 1992.
+
+\bibitem[Leonhard and R{\"o}{\ss}ler(2014)]{leonhard2014}
+Claudine Leonhard and Andreas R{\"o}{\ss}ler.
+\newblock Enhancing the order of the {M}ilstein scheme for stochastic partial
+  differential equations with commutative noise.
+\newblock \emph{arXiv preprint}, 2014.
+\newblock arXiv:1509.08427.
+
+\bibitem[Lord and Petersson(2022)]{petersson2022}
+Gabriel~J. Lord and Andreas Petersson.
+\newblock Piecewise linear interpolation of noise in finite element
+  approximations of parabolic {SPDEs}.
+\newblock \emph{arXiv preprint}, 2022.
+\newblock arXiv:2210.11102.
+
+\bibitem[Lord and Tambue(2010)]{lord2010}
+Gabriel~J. Lord and Antoine Tambue.
+\newblock Stochastic exponential integrators for the finite element
+  discretization of {SPDEs}.
+\newblock \emph{arXiv preprint}, 2010.
+\newblock arXiv:1005.5315.
+
+\bibitem[Lord and Tambue(2016)]{tambue2016}
+Gabriel~J. Lord and Antoine Tambue.
+\newblock A modified semi-implicit {E}uler-{M}aruyama scheme for finite element
+  discretization of {SPDEs} with additive noise.
+\newblock \emph{arXiv preprint}, 2016.
+\newblock arXiv:1004.1998.
+
+\bibitem[Lord et~al.(2014)Lord, Powell, and Shardlow]{lord2014}
+Gabriel~J. Lord, Catherine~E. Powell, and Tony Shardlow.
+\newblock \emph{An Introduction to Computational Stochastic {PDEs}}.
+\newblock Cambridge University Press, 2014.
+
+\bibitem[Oates et~al.(2024)Oates, Karvonen, Teckentrup, Strocchi, and
+  Niederer]{oates2024}
+Chris~J. Oates, Toni Karvonen, Aretha~L. Teckentrup, Marina Strocchi, and
+  Steven~A. Niederer.
+\newblock Probabilistic {R}ichardson extrapolation.
+\newblock \emph{arXiv preprint}, 2024.
+\newblock arXiv:2401.07562.
+
+\bibitem[Razi et~al.(2015)Razi, Attar, and Vedula]{razi2015}
+Yaser Razi, Paul~J. Attar, and Prakash Vedula.
+\newblock Grid adaptation and non-iterative defect correction: An improved
+  numerical framework for {PDE} simulations.
+\newblock \emph{Applied Mathematics and Computation}, 268:\penalty0 246--269,
+  2015.
+\newblock \doi{10.1016/j.amc.2015.07.103}.
+
+\bibitem[Roberts et~al.(2018)Roberts, Sarshar, and Sandu]{roberts2018}
+Steven Roberts, Arash Sarshar, and Adrian Sandu.
+\newblock Coupled multirate infinitesimal {GARK} schemes for stochastic
+  multiscale systems.
+\newblock \emph{arXiv preprint}, 2018.
+\newblock arXiv:1812.02225 (multirate partitioned {RK} lineage).
+
+\bibitem[Ulander(2024)]{ulander2024}
+Johan Ulander.
+\newblock Boundary-preserving weak approximation for some semilinear stochastic
+  partial differential equations.
+\newblock \emph{arXiv preprint}, 2024.
+\newblock arXiv:2412.10800.
+
+\end{thebibliography}

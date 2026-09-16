@@ -1,0 +1,67 @@
+% ============================================================================
+%  living-paper.tex  (main.tex)  — OTS-NIDC for stochastic reaction-diffusion
+%  A LIVING PAPER: every quantitative claim is tagged and entered in the
+%  status ledger (Section 0). Compile: latexmk -pdf (see README).
+% ============================================================================
+\documentclass[11pt]{article}
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+\usepackage{geometry}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[round]{natbib}
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=blue]{hyperref}
+\geometry{margin=1in}
+
+% ---------- theorem environments ----------
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{conjecture}{Conjecture}
+
+% ---------- macros ----------
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\dt}{\Delta t}
+\newcommand{\dx}{\Delta x}
+\newcommand{\dto}{\dt_{\mathrm{opt}}}
+\newcommand{\ddx}{\delta_x^2}
+\newcommand{\SPDE}{SPDE}
+\newcommand{\NIDC}{NIDC}
+\newcommand{\OTS}{OTS}
+% claim-status tags
+\newcommand{\tagV}{\textsc{[V]}}
+\newcommand{\tagP}{\textsc{[P]}}
+\newcommand{\tagS}{\textsc{[S]}}
+\newcommand{\tagO}{\textsc{[O]}}
+\newcommand{\tagC}{\textsc{[C]}}
+
+\title{\textbf{Optimal Time-Stepping with Non-Iterative Defect Correction\\
+for the Moment Hierarchy of Stochastic Reaction--Diffusion Equations}\\[1ex]
+\large A living paper: derivation, verification ledger, and an honest\\
+map from closed moment systems to Cole--Hopf and KPZ observables}
+\author{Aditya Tiwari}
+\date{Living document, version 0.3 --- September 16, 2026\\[0.5ex]
+\small Repository: \texttt{OTS-NIDC} (this paper is generated from it; see Appendix~\ref{app:repro})}
+
+\begin{document}
+\maketitle
+
+\input{sec/frontmatter}
+\input{sec/intro}
+\input{sec/lit}
+\input{sec/method}
+\input{sec/coupled}
+\input{sec/stochastic}
+\input{sec/weird}
+\input{sec/open}
+\appendix
+\input{sec/app_repro}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\end{document}

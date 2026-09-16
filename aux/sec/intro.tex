@@ -1,0 +1,102 @@
+% Section 1: Introduction
+\section{Introduction}\label{sec:intro}
+
+\subsection{The problem class}
+
+Consider the stochastic heat equation with linear multiplicative noise, in It\^o
+form, on a one-dimensional domain with (say) homogeneous Neumann conditions:
+\begin{equation}\label{eq:spde}
+\frac{\partial u}{\partial t} \;=\; D\,\frac{\partial^2 u}{\partial x^2}
+\;+\; \sigma\, u\, \dot W(x,t),
+\qquad \dot W = \text{space-time white noise}.
+\end{equation}
+The field $u(t,x,\omega)$ is random at every point. The standard numerical
+route --- Euler--Maruyama or Milstein on a spatial discretization, driven by
+sampled Wiener increments, followed by Monte Carlo averaging over many paths ---
+is a pathwise method whose \emph{purpose} is to estimate statistics like
+$m(x,t)=\E[u]$ and $V(x,t)=\E[u^2]$. It pays for those statistics $M$ times over,
+once per path, and its weak order in time is at most $1$ \citep{lord2014,kloeden1992}.
+
+This paper pursues the complementary route: \emph{do not discretize the noise at
+all}. For the model class of \S\ref{sec:stochastic}, It\^o's formula converts
+\eqref{eq:spde} into a closed, deterministic, infinite system of reaction--diffusion
+PDEs for the moments $M_k=\E[u^k]$. The moment equations are the deterministic
+object the Monte Carlo estimate was approximating; we solve them directly, at high
+order, with a single-pass explicit finite-difference scheme.
+
+\subsection{The method in one paragraph}
+
+The deterministic core is Chu's OTS-NIDC \citep{chu2011}: for a finite-difference
+time-stepping scheme, \emph{choose the time step so that the leading truncation
+term cancels}, then add a non-iterative defect correction to cancel the surviving
+residual. For the reaction--diffusion family
+$u_t = D u_{xx} + \alpha\, u$ (constant coefficients), the optimal step is
+\begin{equation}\label{eq:dtopt}
+\dto \;=\; \frac{\dx^2}{6D},
+\end{equation}
+one third of the explicit CFL limit, and the first-level correction restores
+fourth-order global accuracy on the standard three-point stencil
+(Theorem~\ref{thm:p1}). The stochastic content of this paper is the observation
+that \emph{every} equation in the moment hierarchy of \eqref{eq:spde} is a member
+of this family, with $\alpha = \frac{k(k-1)}{2}\sigma^2$ for the $k$-th moment ---
+so one optimal step serves all moments simultaneously, and the It\^o correction
+terms enter the defect correction as explicitly computable coefficients
+(Corollary~\ref{cor:indep}).
+
+\subsection{Why this is not too good to be true: scope, in both directions}
+
+Two boundary conditions on the claim must be stated up front.
+
+\paragraph{Strong-convergence barriers do not apply.} Davie and Gaines
+\citep{davie2001} showed that any scheme that approximates the solution of a
+parabolic SPDE driven by space-time white noise \emph{through sampled Wiener
+increments} cannot beat strong order $1/2$ in time (for the natural norms).
+OTS-NIDC never samples the Wiener process: it solves deterministic PDEs derived
+from the SPDE by It\^o calculus. The barrier governs the pathwise problem, a
+different mathematical object. What the method buys is \emph{weak-type accuracy in
+the moments} --- fourth-order convergence of the computed moment fields to the
+true moment fields of the closed system --- at the cost of abandoning pathwise
+information entirely.
+
+\paragraph{Closure validity is a separate, upstream question.} Fourth-order
+accuracy of the solver is a statement about the \emph{closed} moment system. It
+converts to a statement about the true SPDE law only when the hierarchy actually
+closes --- which, per Proposition~\ref{prop:closure}, happens exactly for affine
+drift with additive or linear-multiplicative noise, and fails for polynomial
+reactions of degree $\ge 2$ (Fisher--KPP) and for nonlinear noise (chemical
+Langevin). Grid refinement does not rescue a bad closure. Every stochastic
+application in this paper therefore lives inside the closure-exact class, and the
+nonlinear frontier (\S\ref{sec:weird}) reaches \emph{beyond} it only through exact
+transforms (Cole--Hopf), not through moment truncation.
+
+\subsection{Contributions and structure}
+
+\begin{enumerate}
+\item \textbf{Unified scalar theory} (\S\ref{sec:method}): the $p$-level OTS-NIDC
+family for $u_t = Du_{xx} + \alpha u$, with the $\alpha$-independence of $\dto$
+(Prop.~\ref{prop:alpha}), the sign-corrected first-level correction
+(Remark~\ref{rem:sign}, verified at 4.01 measured order), the stencil-scaling
+bound, and the von Neumann stability analysis showing the correction is
+stability-neutral to $O(\dx^2)$.
+\item \textbf{Coupled deterministic reaction--diffusion} (\S\ref{sec:coupled}):
+the mean-field (M) and second-moment (V) systems, exact decoupling of the two
+blocks, the competing-time-step theorem ($\dto^{(ij)} = \dx^2/6(D_i+D_j)$), the
+regime boundary $r^\ast=3$, the exact mismatch correction for shared stepping,
+and the subcycling/remainder-step construction with its uniform bound --- plus the
+verification contradiction (\tagC) that currently caps the coupled claim.
+\item \textbf{Stochastic reaction--diffusion} (\S\ref{sec:stochastic}): the It\^o
+moment hierarchy, exact closure, the identification $\alpha_k = k(k-1)/2\cdot
+\sigma^2$, the two-block moment system for coupled stochastic species, and the
+interpretation of the method as a weak (moment) solver that side-steps the
+Davie--Gaines barrier by construction.
+\item \textbf{The nonlinear frontier: Cole--Hopf and KPZ} (\S\ref{sec:weird}):
+what survives outside the closure-exact class. The Cole--Hopf transform maps
+stochastic Burgers to a multiplicative-noise stochastic heat equation, so our
+schemes for $\phi$-moments transfer to exponential functionals of Burgers;
+the KPZ side retains well-defined roughness observables precisely in the window
+where raw $\phi$-moments diverge --- and we are explicit that this window is
+exactly where two-point closure is lost and the framework must be rebuilt.
+\item \textbf{An honest ledger} (front matter, \S\ref{sec:open}): every claim
+tagged, every state change logged, and the one \tagC item --- the coupled
+fourth-order assertion --- displayed rather than resolved.
+\end{enumerate}
