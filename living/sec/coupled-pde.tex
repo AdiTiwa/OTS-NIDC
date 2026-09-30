@@ -1,0 +1,63 @@
+\section{The Step to Coupled PDEs}\label{sec:coupled}
+
+We now couple species to allow for multi-linear systems, a direct expansion from the canon work we expand on!
+
+\subsection{Reaction-Diffusion Family and OTS}
+
+For $N$ species with diagonal diffusion, linear reaction coupling, and (here)
+zero noise --- the deterministic skeleton of the moment systems to come ---
+\begin{equation}\label{eq:coupledrd}
+\partial_t u^{(i)} = D_i\,\partial_{xx}u^{(i)} + \sum_j R_{ij}u^{(j)}.
+\end{equation}
+
+\begin{lemma}[OTS-NIDC for fixed indices]
+  For equation \eqref{eq:coupledrd}, the optimal step for each $u^{(i)}$ individually, as derived in the single variable case, is exactly $\dto^{(i)} = \frac{\dx^2}{6D_i}$, with first-level corrections $C^{(1),(i)}$ of the same algebraic form as \eqref{eq:C1}, derived term-by-term in \texttt{OTS-NIDC.md} \S8--9.
+\end{lemma}
+
+With this, we get the desired theorem as follows.
+
+\begin{theorem}[First-level accuracy for fixed indices]\label{thm:cpl-p1}
+  The scheme
+
+  \begin{equation}\label{eq:coupledscheme}
+    u^{(i), n+1}_{k} = u^{(i), n}_{k} + \dto \left[ D_i \ddx u^{(i), n}_{k} + \sum_j R_{ij} u^{(j), n}_{k} \right] + C^{(1), (i)}
+  \end{equation}
+
+  has similar step error and global order as given by Theorem \ref{thm:p1}.
+\end{theorem}
+
+\subsubsection{Competing Time Steps and Subcycling}
+
+Notice that the scheme presented by Theorem \ref{thm:cpl-p1} relies on having $u^{(j), n}_{k}$ from having the value of separate PDE $u^{(j)}$ at time-step $n$. However, since each equation itself relies on their own time-step, we lose the guarantee of having the required value for any given equation readily available if $D_i = D, \forall i$ such that $\dto^(i) = \dto$ for the whole system.
+
+The two failure modes of a naive single step frame the problem.
+
+\paragraph{Failure 1: shared step without correction.} If species 1 (fast,
+$D_1$) is forced onto species 2's optimum $\dt^\ast=\tau_2$, its Group-1
+cancellation breaks. The one-step identity
+\begin{equation}\label{eq:mismatchid}
+e(\dt^\ast) \;=\; \dt^\ast D_1\,\tilde u_{xxxx}
+\Bigl[\tfrac{\dt^\ast D_1}{2} - \tfrac{\dx^2}{12}\Bigr] + O((\dt^\ast)^3)
+\end{equation}
+is exact for every $\dt^\ast$, and writing $\dt^\ast = \tau_1 + \epsilon$ turns
+the bracket into $\epsilon D_1/2$ \emph{identically} (no Taylor truncation in
+$\epsilon$). Hence:
+
+\begin{theorem}[Exact mismatch correction]\label{thm:mismatch}
+For any shared step $\dt^\ast = \tau_1 + \epsilon > 0$ that is stable for
+species 1, subtracting \eqref{eq:mismatchid} (with $\tilde u_{xxxx}$ from a
+5-point stencil) restores species 1's full accuracy. The correction is
+algebraic, not asymptotic, in $\epsilon$ --- including $\epsilon$ of the same
+size as $\tau_1$ itself.
+\end{theorem}
+\noindent\emph{Status:} \tagV (worked example $D_1=3, D_2=1$ at $r=3$,
+\texttt{examples/test\_regime1\_D1\_3\_D2\_1.py}; correction there is
+grid-independent --- the $\dx^4$ cancels, leaving pure stencil weights).
+
+\paragraph{Failure 2: naive splitting.} Lie--Trotter splitting with the
+coupling frozen over a macro step $H$ incurs a sustained $O(H)$ forcing error;
+accumulated over $T/H$ cycles this is a global $O(H) = O(\dx^2)$ error ---
+worse than the uncorrected base scheme. Freezing is not viable; coupling data
+data must be interpolated (order $m \ge p$ by the Gear--Wells bookkeeping
+(see Thm.~\ref{thm:remainder}'s setting), cubic Hermite sufficing through
+$p=2$ \citep{gear1984,fok2010}).
