@@ -4,8 +4,7 @@ We now couple species to allow for multi-linear systems, a direct expansion from
 
 \subsection{Reaction-Diffusion Family and OTS}
 
-For $N$ species with diagonal diffusion, linear reaction coupling, and (here)
-zero noise --- the deterministic skeleton of the moment systems to come ---
+For $N$ species with diagonal diffusion, linear reaction coupling, and (here) zero noise --- the deterministic skeleton of the moment systems to come ---
 \begin{equation}\label{eq:coupledrd}
 \partial_t u^{(i)} = D_i\,\partial_{xx}u^{(i)} + \sum_j R_{ij}u^{(j)}.
 \end{equation}
@@ -54,10 +53,43 @@ size as $\tau_1$ itself.
 \texttt{examples/test\_regime1\_D1\_3\_D2\_1.py}; correction there is
 grid-independent --- the $\dx^4$ cancels, leaving pure stencil weights).
 
+We remain, however, that this stencil is not ideal for each step, and it leads to questions of stability. In fact,
+
 \paragraph{Failure 2: naive splitting.} Lie--Trotter splitting with the
 coupling frozen over a macro step $H$ incurs a sustained $O(H)$ forcing error;
 accumulated over $T/H$ cycles this is a global $O(H) = O(\dx^2)$ error ---
 worse than the uncorrected base scheme. Freezing is not viable; coupling data
-data must be interpolated (order $m \ge p$ by the Gear--Wells bookkeeping
-(see Thm.~\ref{thm:remainder}'s setting), cubic Hermite sufficing through
-$p=2$ \citep{gear1984,fok2010}).
+data must be interpolated. 
+
+Therefore, we introduce a subcycle protocol that fares to match timesteps where information can nicely be interpolated. First we find that,
+
+\begin{theorem}[Regime boundary]\label{thm:regime}
+Forcing the fast species onto the slow species' optimal step
+$\dt^\ast=\tau_2=\dx^2/6D_2$ is stable for the fast species iff
+\[
+r := D_1/D_2 \;\le\; 3 .
+\]
+For $r>3$ the shared step is unconditionally unstable and subcycling is
+mandatory.
+\end{theorem}
+\begin{proof}[Proof sketch]
+FTCS stability needs $\dt^\ast \le \dx^2/2D_1$; substituting
+$\dt^\ast = \dx^2/6D_2$ gives $r\le3$. The threshold is grid-independent
+because both sides scale as $\dx^2$.
+\end{proof}
+\noindent\emph{Status:} \tagS --- derived from plain FTCS; the corrected
+scheme's stability region (Prop.~\ref{prop:stability} is scalar-only) has not
+been re-derived, so the boundary is supported, not proven, for the corrected
+coupled scheme (open item \ref{open:stab}).
+
+Then, via this regime boundary, we can strictly define the two regimes:
+
+\paragraph{Regime 1: Single unoptimal step with exact mismatch correction.} For any two equations with distinct $\dto^{(1)} < \dto^{(2)}$ and $r = D_2/D_1 \leq 3$, we evolve both equations by $\dto^* = \dto^{(2)}$ such that $u^(2)$ is optimally solved by nature, and the discretization of $u^{(1)}$ is evolved with $\dto^{(1)} + \epsilon$ such that the explicit mismatch correction term recovers order 4 accuracy.
+
+\paragraph{Regime 2: Sub-cycling with Hermite Polynomial interpolation.} For any two equations with distinct $\dto^{(1)} < \dto^{(2)}$ and $r = D_2 / D_1 > 3$, evolve the fast equation $u^{(1)}$ via $n = \lfloor r \rfloor$ sub-cycled steps of $\dto^{(1)}$ and a single remainder step $\rho = \dto^{(1)} - n \dto^{(2)}$ with explicit mismatch correction given by $\epsilon$ in $\rho = \dto^{(2)} - \epsilon$. The slow equation $u^{(2)}$ can evolve with it's own $\dto^{(2)}$, but requires cubic Hermite interpolation to overcome the $O(H)$ forcing error through $p=2$ \citep{gear1984,fok2010}).
+
+With these regimes, we complete the derivation of OTS-NIDC for coupled PDEs.
+
+\subsection{Stability}
+
+\todo{LOOOL, i totally believe in myself}
