@@ -1,0 +1,3 @@
+\section{Regime 2: Interpolation}
+
+For any two equations with distinct $\dto^{(1)} < \dto^{(2)}$ and $r = D_2 / D_1 > 3$, evolve the fast equation $u^{(1)}$ via $n = \lfloor r \rfloor$ sub-cycled steps of $\dto^{(1)}$ and a single remainder step $\rho = \dto^{(1)} - n \dto^{(2)}$ with explicit mismatch correction given by $\epsilon$ in $\rho = \dto^{(2)} - \epsilon$. The slow equation $u^{(2)}$ can evolve with it's own $\dto^{(2)}$, but requires cubic Hermite interpolation to overcome the $O(H)$ forcing error through $p=2$ \citep{gear1984,fok2010}).

@@ -1,0 +1,113 @@
+\section{Regime 1: Explicit Correction Single Stepping}
+
+Recall that Eq \ref{eq:mismatchid}, forcing equation with timestep $\tau_1 \sim D_1$ on $\Delta t^*$ re-involves the $u_{xxxx}$ term, but writing $h = \tau_1 + \varepsilon$ leads the coefficient of $u_{xxxx}$ to be exactly $\frac{\varepsilon D_1}{2}$. With this, we can formulate a first method of attempting to correspond any two coupled equations. 
+
+For any two equations with distinct $\dto^{(1)} < \dto^{(2)}$ and $r = D_2/D_1 \leq 3$, we evolve both equations by $\dto^* = \dto^{(2)}$ such that $u^(2)$ is optimally solved by nature, and the discretization of $u^{(1)}$ is evolved with $\dto^{(1)} + \epsilon$ such that the explicit mismatch correction term recovers order 4 accuracy. Namely,
+
+\begin{lemma}\label{thm:mismatch}
+  Forcing the time-step $h$ on equation with OTS $\tau_1$, where $h = \tau^{(i)} + \varepsilon$, the \textbf{explicit mismatch correction term} is written as,
+
+  \[
+    C^{(i)}_{mismatch} = \frac{h D^2 \varepsilon}2 \delta^4_x u^{(i), n}
+  \]
+
+  where $\delta^4_x$ is evaluated via a five-point stencil and $u^{(i), n}$ is the i-th species evaluated at time $n$.
+\end{lemma}
+
+Then,
+
+\begin{theorem}[OTS-NIDC accuracy fixed indices with time-step forcing]\label{thm:cpl-r1-p1}
+  For equation $u^{(i)}$ with forced time-step $h$, the scheme
+
+  \begin{equation}\label{eq:coupledscheme1}
+    u^{(i), n+1}_{k} = u^{(i), n}_{k} + h \left[ D_i \ddx u^{(i), n}_{k} + \sum_j R_{ij} u^{(j), n}_{k} \right] + C^{(1), (i)} + C^{(i)}_{mismatch}  
+  \end{equation}
+
+  has similar step error and global order as given by Theorem \ref{thm:p1}.
+\end{theorem}
+
+
+\subsection{Stability}
+
+As we've established that the regime for individual equations remains the same, we prove stability by showing the correction factor described in Lemma \ref{thm:mismatch} is similarly a perturbation on the simple FE scheme. We follow the scalar analysis of \S1, now allowing the actual step $h$ to differ from the optimal step $\tau=\frac{\Delta x^2}{6D}$. Write $h=\tau+\varepsilon$ and $r=\frac{h}{\tau}$. We first establish stability of the mismatch-corrected diffusion step, then restore the reaction terms.
+
+\begin{lemma}[Mismatch correction and amplification factor]
+For $u_t=Du_{xx}$, the corrected update is
+$u^{n+1}=u^n+hD\delta_x^2u^n
++\frac{hD^2\varepsilon}{2}\delta_x^4u^n$,
+where $\delta_x^4=(\delta_x^2)^2$.
+With $s=\sin^2\left(\frac{k\Delta x}{2}\right)\in[0,1]$, its amplification factor is
+$G_{\mathrm{diff}}(s)
+=1-\frac{2r}{3}s+\frac{2r(r-1)}{9}s^2$.
+\end{lemma}
+
+\begin{proof}
+  Recall that Lemma \ref{thm:mismatch} that cancellation requires adding $\frac{hD^2\varepsilon}{2}\delta_x^4u^n$.
+
+The symbols of $\delta_x^2$ and $\delta_x^4$ are $-\frac{4s}{\Delta x^2}$ and $\frac{16s^2}{\Delta x^4}$. Substituting $h=r\tau$ and $\varepsilon=(r-1)\tau$ gives$G_{\mathrm{diff}}(s)
+=1-\frac{2r}{3}s+\frac{2r(r-1)}{9}s^2$.
+At $r=1$, the mismatch vanishes and this reduces to the optimal-step diffusion factor from \S1.
+\end{proof}
+
+Unlike the reaction corrections in \S1, the mismatch contribution need not vanish under refinement at fixed grid frequency: its symbol is $\frac{2r(r-1)}{9}s^2$. We therefore bound the complete factor rather than assume that the correction is uniformly small.
+
+\begin{lemma}[Diffusive stability interval]
+On an infinite or periodic uniform grid, the mismatch-corrected diffusion step satisfies $|G_{\mathrm{diff}}(s)|\le1$ for every $s\in[0,1]$ whenever $0<r\le4$.
+\end{lemma}
+
+\begin{proof}
+The upper bound follows from
+$G_{\mathrm{diff}}(s)-1
+=\frac{2rs}{9}\left((r-1)s-3\right)\le0$,
+since $0<r\le4$ and $0\le s\le1$.
+
+For the lower bound, completing the square gives
+$G_{\mathrm{diff}}(s)
+=\frac{2}{9}\left(rs-\frac{s+3}{2}\right)^2
++1-\frac{(s+3)^2}{18}\ge\frac{1}{9}$.
+Hence $\frac{1}{9}\le G_{\mathrm{diff}}(s)\le1$.
+
+For $r>4$, the grid-scale factor is
+$G_{\mathrm{diff}}(1)=1+\frac{2r(r-4)}{9}>1$.
+Thus $r=4$ is the sharp boundary for this Fourier criterion.
+\end{proof}
+
+In particular, the correction preserves diffusive stability throughout the imposed forward Euler range $0<r\le3$, as well as for shortened remainder steps $0<r<1$. We retain $r\le3$ as the operating restriction and use it below to recover the reaction-growth bound from \S1.
+
+For $u_t=Du_{xx}+\alpha u$, the reaction correction must also be evaluated at the actual step. The same Taylor expansion used in \S1 gives
+$C_{\mathrm{react}}u^n
+=h^2\alpha D\delta_x^2u^n
++\frac{h^2\alpha^2}{2}u^n$.
+At $h=\tau$, this is exactly the correction previously derived. Together with the mismatch term, it cancels the leading residual at a general step $h$.
+
+\begin{theorem}[Scalar stability with mismatch correction]
+Let $\alpha\ge0$, and consider
+$u^{n+1}
+=u^n+h(D\delta_x^2u^n+\alpha u^n)
++\frac{hD^2(h-\tau)}{2}\delta_x^4u^n
++h^2\alpha D\delta_x^2u^n
++\frac{h^2\alpha^2}{2}u^n$.
+On an infinite or periodic uniform grid, if $0<h\le3\tau$, then its amplification factor satisfies $|G(s)|\le e^{\alpha h}$ uniformly in $s\in[0,1]$.
+
+Consequently, any sequence of admitted steps, including optimal substeps and shortened remainder steps, satisfies
+$\|u^N\|_{\ell^2}\le e^{\alpha T}\|u^0\|_{\ell^2}$,
+where $T=\sum_{n=0}^{N-1}h_n$.
+\end{theorem}
+
+\begin{proof}
+Set $a=\alpha h$ and $r=\frac{h}{\tau}$. Substituting the Fourier symbols gives
+$G(s)
+=G_{\mathrm{diff}}(s)
++a\left(1-\frac{2r}{3}s\right)
++\frac{a^2}{2}$.
+The preceding lemma gives $|G_{\mathrm{diff}}(s)|\le1$. Moreover, for $0<r\le3$,
+$-1\le1-\frac{2r}{3}s\le1$.
+Therefore,
+$|G(s)|\le1+a+\frac{a^2}{2}\le e^a$.
+
+Over successive steps, the amplification factors multiply. Hence their product has magnitude at most
+$\prod_{n=0}^{N-1}e^{\alpha h_n}=e^{\alpha T}$.
+The discrete $\ell^2$ estimate follows from Parseval's identity.
+\end{proof}
+
+Thus the mismatch correction preserves the scalar growth allowance used in \S1 throughout the admitted forward Euler range. In a subcycle, full steps have $r=1$ and any shortened remainder has $0<r<1$, so both satisfy the same estimate. This establishes the scalar building block; stability of off-diagonal reaction coupling and its interpolation still requires analysis of the complete coupled update.
