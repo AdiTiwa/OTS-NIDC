@@ -1,3 +1,147 @@
-\section{Regime 2: Interpolation}
+\section{Regime 2: Interpolation and Subcycling}
 
-For any two equations with distinct $\dto^{(1)} < \dto^{(2)}$ and $r = D_2 / D_1 > 3$, evolve the fast equation $u^{(1)}$ via $n = \lfloor r \rfloor$ sub-cycled steps of $\dto^{(1)}$ and a single remainder step $\rho = \dto^{(1)} - n \dto^{(2)}$ with explicit mismatch correction given by $\epsilon$ in $\rho = \dto^{(2)} - \epsilon$. The slow equation $u^{(2)}$ can evolve with it's own $\dto^{(2)}$, but requires cubic Hermite interpolation to overcome the $O(H)$ forcing error through $p=2$ \citep{gear1984,fok2010}).
+\subsection{Setup and switching rule}
+
+Two species with $\dto^{(1)} < \dto^{(2)}$, so $D_1 > D_2$ and species 1 is the fast one. Define the step ratio $r = \frac{\dto^{(2)}}{\dto^{(1)}} = \frac{D_1}{D_2} > 1$. This is the same $r = h/\tau$ as in Regime 1, with $h = \dto^{(2)}$ forced onto the fast equation and $\tau = \dto^{(1)}$. The mismatch is $\varepsilon = \dto^{(2)} - \dto^{(1)} = (r-1)\,\dto^{(1)}$, as in Regime 1.
+
+\begin{itemize} 
+  \item Macro step $H = \dto^{(2)}$. Write $n = \lfloor r \rfloor$, $\theta = r - n \in [0,1)$, and remainder $\rho = H - n\,\dto^{(1)} = \theta\,\dto^{(1)} \in [0,\dto^{(1)})$.
+  \item Switching rule: Regime 1 is stable for $r < 4$ (Theorem \ref{thm:r1-stab}), so Regime 2 is needed for $r \ge r_c$ with $r_c \in [3,4)$ a design parameter.
+  \begin{itemize}
+    \item $r_c = 3$ is the conservative choice (the uncorrected forward Euler ceiling).
+    \item Larger $r_c$ is supported by Fourier stability up to $r = 4$, but at $r = 4$ the grid mode is only marginally stable ($G_{\mathrm{diff}}(1) = 1$) and the mismatch term is $O(1)$ at grid scale. Say this explicitly and justify the choice of $r_c$ numerically.
+  \end{itemize}
+  \item Ordering within a macro step (slow first):
+  \begin{enumerate}
+    \item Advance $u^{(2)}$ from $t^k$ to $t^{k+1} = t^k + H$ with its own optimal step, using $u^{(1)}$ at $t^k$ only (explicit coupling).
+    \item Sub-cycle $u^{(1)}$ over $[t^k, t^{k+1}]$, reading $u^{(2)}$ from an interpolant built on the two known levels (and optionally history).
+  \end{enumerate}
+  This makes the slow-species coupling data a true interpolation, never an extrapolation.
+  \item Only the \emph{coupling data} needs interpolating. The fast species' own state is advanced by the Regime 1 scheme.
+\end{itemize}
+
+\subsection{How much interpolation is required}
+
+Let $I_q u^{(2)}$ denote the Lagrange interpolant in time of degree $q$ through $q+1$ known slow levels, and let $p$ be the level of the correction tower (global order $2p+2$).
+
+\begin{lemma}[Interpolation error]\label{lem:interp-err}
+  For $t \in [t^k, t^{k+1}]$ and $u^{(2)}$ sufficiently smooth in time,
+  \[
+    \bigl| u^{(2)}(t) - (I_q u^{(2)})(t) \bigr| \le C_q \, \bigl(\dto^{(2)}\bigr)^{q+1} \max |\partial_t^{q+1} u^{(2)}| ,
+  \]
+  where $C_q$ is the Lagrange node-polynomial constant. In particular $C_1 = 1/8$.
+\end{lemma}
+
+\begin{itemize}
+  \item Proof: standard Lagrange remainder, no new content. Cite and state the constants for $q=1,2$.
+  \item Remark: since $\partial_t^2 u = D_2^2 \partial_x^4 u + \dots$ and $\dto^{(2)} = \Delta x^2/(6D_2)$, the linear case gives an error of about $\Delta x^4 |u_{xxxx}|/288$, independent of $D_2$.
+\end{itemize}
+
+\begin{theorem}[Degree of interpolation]\label{thm:interp-degree}
+  Suppose the fast update uses coupling data $R_{12} (I_q u^{(2)})$. Each sub-step has local error $O(\Delta x^{2q+4})$ from the coupling data, hence the global order contributed is $\min(2p+2,\,2q+2)$. In particular, $q \ge p$ is necessary and sufficient to preserve order $2p+2$.
+\end{theorem}
+
+\begin{itemize}
+  \item Proof sketch to write out: the interpolation error enters multiplied by the step $h \sim \Delta x^2$, then accumulate over $O(\Delta x^{-2})$ steps. Constants grow with $r$ (the interpolation interval is $\dto^{(2)} = r\,\dto^{(1)}$) but $r$ is bounded by design.
+  \item Consequence table for the paper:
+  \begin{itemize}
+    \item $p=1$: linear interpolation (2 nodes: $t^k$, $t^{k+1}$).
+    \item $p=2$: quadratic (3 nodes, adds $t^{k-1}$).
+    \item Variant: cubic Hermite dense output using the stored derivatives $D_2\delta_x^2 u^{(2)} + R u$ that the slow step already computes. Needs no history, gives higher-order coupling error than $p=1$ requires.
+  \end{itemize}
+  \item \textbf{[Open derivation]} The correction $C^{(1),(1)}$ on each substep includes a cross term containing $R_{12}\,\partial_t u^{(2)}$. Decide how $\partial_t u^{(2)}$ is supplied (finite difference of the two slow levels, or the Hermite derivative) and check it does not lower the order.
+\end{itemize}
+
+\subsection{Closing the macro step}
+
+After $n$ full steps of $\dto^{(1)}$, the fast species has advanced $n\,\dto^{(1)}$ and still needs $\rho = \theta\,\dto^{(1)}$ to reach $t^{k+1}$.
+
+\subsubsection{Method A: remainder step}
+
+\begin{itemize}
+  \item Take one final step of size $\rho$ with mismatch parameter $\varepsilon_\rho = \rho - \dto^{(1)} = (\theta - 1)\dto^{(1)} < 0$ (the Regime 1 $\varepsilon$ for this step) in Lemma \ref{thm:mismatch}, coupling data from $I_q u^{(2)}$ at the beginning of the step.
+  \item Uses a five-point stencil for $\delta_x^4$; needs no solution history.
+\end{itemize}
+
+\begin{theorem}[Subcycled scheme with remainder step]\label{thm:regime2-A}
+  Let $r \ge r_c$, $q \ge p$. The scheme above has global order $2p+2$ (order 4 at $p=1$).
+\end{theorem}
+
+\begin{itemize}
+  \item Proof outline: Theorem \ref{thm:interp-degree} for the coupling data; Theorem \ref{thm:cpl-r1-p1} for each step (the remainder has step ratio $\rho/\dto^{(1)} = \theta < 1$); telescoping over the $n+1$ steps per macro step.
+  \item Stability: scalar building block is Theorem \ref{thm:r1-stab}, since full steps have step ratio $h/\tau = 1$ and the remainder has $0<h/\tau<1$. Coupled stability still open (same status as Regime 1).
+  \item Failure mode to remark on: $\theta \to 0$ gives a vanishingly short remainder. Fine for stability ($G_{\mathrm{diff}} \to 1$), but check that the mismatch term $\varepsilon_\rho \to -\dto^{(1)}$ behaves.
+\end{itemize}
+
+\subsubsection{Method B: extrapolated point}
+
+\begin{itemize}
+  \item Take only the $n$ full optimal steps, with no mismatch correction. Then advance the \emph{state} to $t^{k+1}$ by extrapolating the last $q+1$ fast levels forward by a fraction $\theta$ of a step.
+  \item The extrapolation error lands on the state directly rather than being multiplied by $h$, so the degree requirement is one higher than for interpolation.
+\end{itemize}
+
+\begin{lemma}[Extrapolation error]\label{lem:extrap-err}
+  Let $E_q$ be the degree-$q$ extrapolant through $q+1$ consecutive fast levels spaced $\dto^{(1)}$ apart, evaluated at $\theta\,\dto^{(1)}$ beyond the last node. Then
+  \[
+    \bigl| u^{(1)} - E_q u^{(1)} \bigr| \le \Lambda_q(\theta)\,\bigl(\dto^{(1)}\bigr)^{q+1} \max|\partial_t^{q+1} u^{(1)}|, \qquad \Lambda_q(\theta) = \frac{\prod_{i=0}^{q} (\theta + i)}{(q+1)!} .
+  \]
+\end{lemma}
+
+\begin{itemize}
+  \item $\Lambda_1(\theta) = \theta(1+\theta)/2$ and $\Lambda_2(\theta) = \theta(\theta+1)(\theta+2)/6$; both are $\le 1$ for $\theta \in [0,1]$.
+  \item Remark: since $\partial_t^{q+1} u \sim D_1^{q+1} \partial_x^{2q+2} u$ and $\dto^{(1)} = \Delta x^2/(6D_1)$, the constant is independent of $D_1$.
+  \item Accuracy range: the extrapolation distance is $\theta < 1$ by construction, i.e.\ less than one optimal step beyond the last node. $\Lambda_q$ grows factorially for longer distances, so this should be stated as the reason the method is limited to a single sub-step of extrapolation.
+\end{itemize}
+
+\begin{theorem}[Degree of extrapolation]\label{thm:extrap-degree}
+  The extrapolated point contributes a local error $O(\Delta x^{2q+2})$ per macro step, hence global order $\min(2p+2,\,2q)$. Order $2p+2$ therefore requires $q \ge p+1$: at $p=1$ this means quadratic extrapolation from three levels, and linear extrapolation caps the scheme at order 2.
+\end{theorem}
+
+\begin{itemize}
+  \item Proof outline: Lemma \ref{lem:extrap-err} gives the local error. Telescoping over $T/H = O(\Delta x^{-2})$ macro steps.
+  \item Remark: if the extrapolated value were only used as coupling data (rather than overwriting the state), the error would again be multiplied by $h$ and the interpolation rule $q \ge p$ would apply. Relevant for an alternative fast-first ordering.
+\end{itemize}
+
+\begin{lemma}[Fourier symbol of Method B]\label{lem:B-symbol}
+  With $G(s)$ the single-step factor at the optimal step, the macro amplification factor for the quadratic extrapolant is
+  \[
+    M_B(s;\theta) = G(s)^n \Bigl[ \tfrac{(\theta+1)(\theta+2)}{2} - \tfrac{\theta(\theta+2)}{G(s)} + \tfrac{\theta(\theta+1)}{2\,G(s)^2} \Bigr].
+  \]
+  At the grid mode of the diffusive step, $G = 1/3$ and the bracket equals $1+2\theta^2$.
+\end{lemma}
+
+\begin{itemize}
+  \item \textbf{[Open]} Show $|M_B(s;\theta)| \le e^{\alpha H}$ uniformly in $s \in [0,1]$ and $\theta \in [0,1)$ for the admitted $n$. At the grid mode this reduces to $3^{-n}(1+2\theta^2)$, so check the lower bound on $n$ (i.e.\ on $r_c$) this implies.
+  \item Do this numerically first and only then try to prove it.
+\end{itemize}
+
+\subsection{Comparison of the two closures}
+
+\begin{itemize}
+  \item Table to include: stencil width ($\delta_x^4$ five-point for A; none for B), history storage (none for A; $q+1$ levels of the fast species for B), required degree ($q \ge p$ for A, $q \ge p+1$ for B), stability argument (reduces to Theorem \ref{thm:r1-stab} for A; needs the macro-symbol analysis for B), behaviour as $\theta \to 1$.
+  \item Recommendation to draft: A as the default (stability is inherited, no history); B as an alternative that avoids the five-point stencil in the final step but needs more history and a separate stability check.
+\end{itemize}
+
+\subsection{Numerical validation}
+
+\begin{itemize}
+  \item Mirror Table 1 on a two-species linear system with $D_1/D_2 \in \{5, 10\}$, chosen so that $r > 4$, $T$ and boundary conditions as in the scalar test, error against the exact cosine-series solution.
+  \item Rows to include:
+  \begin{itemize}
+    \item A with $q = 1$ (expected order 4).
+    \item A with $q = 0$, a deliberately under-resolved interpolant (expected order 2): negative control for Theorem \ref{thm:interp-degree}.
+    \item B with $q = 1$ (expected order 2) and $q = 2$ (expected order 4): negative control and positive result for Theorem \ref{thm:extrap-degree}.
+    \item Forward Euler subcycled with the same step structure, as baseline.
+  \end{itemize}
+  \item Include non-integer and near-integer $r$ (e.g.\ $\theta \approx 0.1$ and $0.9$) to exercise the remainder.
+  \item Also scan $r \in \{3, 3.5, 3.9\}$ in Regime 1 against Regime 2 to justify $r_c$.
+\end{itemize}
+
+\subsection{Open items}
+
+\begin{itemize}
+  \item Coupled (off-diagonal) stability for the subcycled-and-interpolated update; only the scalar building block is covered so far.
+  \item Cross-term correction with $\partial_t u^{(2)}$ inside the sub-steps (see above).
+  \item More than two species: define the ordering of the ratios and whether to nest the subcycles.
+  \item $p \ge 2$: interpolation degree $q \ge p$ and extrapolation degree $q \ge p+1$ are predicted by the same counting, but untested.
+\end{itemize}
