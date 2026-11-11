@@ -8,11 +8,11 @@ Everything so far is deterministic, but our greatest contribution is primarily i
 \todo{hOOOOOLLy idek}
 
 \paragraph{Setting.}
-Let $D\subset\mathbb{R}$ be the periodic interval $\mathbb{R}/L\mathbb{Z}$ or a bounded interval with Neumann conditions, and let $\Delta$ be the corresponding Laplacian on $H=L^2(D)$. Let $(e_m)_{m\ge 0}$ be its real orthonormal eigenbasis, $-\Delta e_m=\lambda_m e_m$, $\lambda_m\ge 0$.
+Let $\Omega\subset\mathbb{R}$ be the periodic interval $\mathbb{R}/L\mathbb{Z}$ or a bounded interval with Neumann conditions, and let $\Delta$ be the corresponding Laplacian on $H=L^2(\Omega)$. Let $(e_m)_{m\ge 0}$ be its real orthonormal eigenbasis, $-\Delta e_m=\lambda_m e_m$, $\lambda_m\ge 0$.
  
-The noise has spatial covariance $q:D\times D\to\mathbb{R}$, which is symmetric, continuous and positive semidefinite. By Mercer's theorem, $q=\sum_p \mu_p\, f_p\otimes f_p$ with $(f_p)$ an orthonormal basis of $H$, $\mu_p\ge 0$, and $\sum_p\mu_p<\infty$. Put $\bar q=\sup|q|<\infty$. Let
+The noise has spatial covariance $q:\Omega\times\Omega\to\mathbb{R}$, which is symmetric, continuous and positive semidefinite. By Mercer's theorem, $q=\sum_p \nu_p\, f_p\otimes f_p$ with $(f_p)$ an orthonormal basis of $H$, $\nu_p\ge 0$, and $\sum_p\nu_p<\infty$. Put $\bar q=\sup|q|<\infty$. Let
 \[
-W_k(t)=\sum_p\sqrt{\mu_p}\,\beta_k^p(t)\,f_p ,
+W_k(t)=\sum_p\sqrt{\nu_p}\,\beta_k^p(t)\,f_p ,
 \]
 where the $\beta_k^p$ are independent standard Brownian motions, so the channels $k$ are independent with common spatial covariance $q$. Consider
 \begin{equation}\label{eq:sys-revised}
@@ -24,13 +24,13 @@ with $D_i\ge 0$, $R,\sigma$ constant matrices, and $u^0$ independent of $W$ with
 \medskip
 \noindent\textbf{Hypothesis (H).} \eqref{eq:sys-revised} has a unique mild solution $u\in C([0,T];H)$ a.s. with $\sup_{t\le T}\mathbb{E}\|u(t)\|_H^4<\infty$.
  
-(H) holds under the assumptions above. The map $v\mapsto \sum_k\sigma_{ik}\,v\,dW_k$ is Lipschitz $H\to \mathrm{HS}(Q^{1/2}H,H)$, because $\sum_p\mu_p\|v f_p\|^2=\int q(x,x)v(x)^2dx\le\bar q\|v\|^2$. Existence, uniqueness and moment bounds then follow from the standard theory (Da~Prato--Zabczyk, \emph{Stochastic Equations in Infinite Dimensions}, Thm.~7.2 and its $p$-th moment version).
+(H) holds under the assumptions above. The map $v\mapsto \sum_k\sigma_{ik}\,v\,dW_k$ is Lipschitz $H\to \mathrm{HS}(Q^{1/2}H,H)$, because $\sum_p\nu_p\|v f_p\|^2=\int q(x,x)v(x)^2dx\le\bar q\|v\|^2$. Existence, uniqueness and moment bounds then follow from the standard theory (Da~Prato--Zabczyk, \emph{Stochastic Equations in Infinite Dimensions}, Thm.~7.2 and its $p$-th moment version).
  
 \paragraph{Moment objects.}
 Define the Bochner expectations
 \[
-m_i(t)=\mathbb{E}[u_i(t)]\in L^2(D),\qquad
-V_{ij}(t)=\mathbb{E}\big[u_i(t)\otimes u_j(t)\big]\in L^2(D\times D),
+m_i(t)=\mathbb{E}[u_i(t)]\in L^2(\Omega),\qquad
+V_{ij}(t)=\mathbb{E}\big[u_i(t)\otimes u_j(t)\big]\in L^2(\Omega\times\Omega),
 \]
 so that formally $V_{ij}(t,x,y)=\mathbb{E}[u_i(t,x)\,u_j(t,y)]$. These are well defined because $\|u_i\otimes u_j\|=\|u_i\|\|u_j\|$ is integrable. The pointwise (``same-point'') moment is the restriction $V_{ij}(t,x,x)$, which is \emph{not} an object of this proposition.
  
@@ -41,7 +41,7 @@ Under (H):
 \begin{equation}\label{eq:mean-revised}
 \partial_t m_i=D_i\Delta m_i+\sum_j R_{ij}m_j .
 \end{equation}
-\item[\textup{(b)}] \textbf{Two-point function.} $V=(V_{ij})$ is the unique mild solution in $C([0,T];L^2(D\times D)^{N\times N})$ of
+\item[\textup{(b)}] \textbf{Two-point function.} $V=(V_{ij})$ is the unique mild solution in $C([0,T];L^2(\Omega\times\Omega)^{N\times N})$ of
 \begin{equation}\label{eq:two-point-revised}
 \begin{aligned}
 \partial_t V_{ij}(x,y)
@@ -65,17 +65,17 @@ In particular, \eqref{eq:two-point-revised} is a closed, linear, deterministic s
 u_i^m(t)=u_i^m(0)+\int_0^t\Big(-D_i\lambda_m u_i^m+\sum_j R_{ij}u_j^m\Big)ds+M_i^m(t),
 \]
 \[
-M_i^m(t)=\sum_k\sigma_{ik}\sum_p\sqrt{\mu_p}\int_0^t\langle e_m,u_k f_p\rangle\,d\beta_k^p .
+M_i^m(t)=\sum_k\sigma_{ik}\sum_p\sqrt{\nu_p}\int_0^t\langle e_m,u_k f_p\rangle\,d\beta_k^p .
 \]
 The $\beta_k^p$ are independent across $(k,p)$, so
 \[
-d\langle M_i^m,M_j^n\rangle_t=\sum_k\sigma_{ik}\sigma_{jk}\sum_p\mu_p\langle e_m,u_kf_p\rangle\langle e_n,u_kf_p\rangle\,dt .
+d\langle M_i^m,M_j^n\rangle_t=\sum_k\sigma_{ik}\sigma_{jk}\sum_p\nu_p\langle e_m,u_kf_p\rangle\langle e_n,u_kf_p\rangle\,dt .
 \]
-By Mercer's theorem the series $\sum_p\mu_p f_p(x)f_p(y)$ converges uniformly to $q(x,y)$, and $u_k\in L^2\subset L^1$, so we may interchange sum and integral:
+By Mercer's theorem the series $\sum_p\nu_p f_p(x)f_p(y)$ converges uniformly to $q(x,y)$, and $u_k\in L^2\subset L^1$, so we may interchange sum and integral:
 \begin{equation}\label{eq:qv-revised}
 d\langle M_i^m,M_j^n\rangle_t=\sum_k\sigma_{ik}\sigma_{jk}\iint e_m(x)e_n(y)\,q(x,y)\,u_k(t,x)u_k(t,y)\,dx\,dy\;dt .
 \end{equation}
-Also $\sum_p\mu_p\langle e_m,u f_p\rangle^2=\iint e_m(x)e_m(y)\,q(x,y)\,u(x)u(y)\le\bar q\|u\|^2$, so $d\langle M_i^m\rangle\le C\bar q\|u\|^2dt$.
+Also $\sum_p\nu_p\langle e_m,u f_p\rangle^2=\iint e_m(x)e_m(y)\,q(x,y)\,u(x)u(y)\le\bar q\|u\|^2$, so $d\langle M_i^m\rangle\le C\bar q\|u\|^2dt$.
  
 \textbf{Step 2 (Itô product and expectation).} By the Itô product rule for continuous semimartingales,
 \[
@@ -91,16 +91,20 @@ by the fourth-moment bound in (H). Taking expectations, writing $V_{ij}^{mn}=\ma
 \end{equation}
 The right side depends only on the family $\{V_{kl}\}$, not on any higher moment. This is the closure.
  
-\textbf{Step 3 (identification and uniqueness).} Let $X=L^2(D\times D)^{N\times N}$. Let $B$ act on the $(i,j)$ component as $D_i\Delta_x+D_j\Delta_y$ with the stated boundary conditions. It is self-adjoint and nonpositive, diagonal in the basis $e_m\otimes e_n$ with eigenvalue $-(D_i\lambda_m+D_j\lambda_n)$, hence generates a contraction $C_0$-semigroup on $X$; the boundary conditions on $V$ are those of the domain of $B$. Let $\mathcal L$ collect the remaining terms of \eqref{eq:two-point-revised}. It is bounded on $X$:
+\textbf{Step 3 (identification and uniqueness).} Let $X=L^2(\Omega\times\Omega)^{N\times N}$. Let $B$ act on the $(i,j)$ component as $D_i\Delta_x+D_j\Delta_y$ with the stated boundary conditions. It is self-adjoint and nonpositive, diagonal in the basis $e_m\otimes e_n$ with eigenvalue $-(D_i\lambda_m+D_j\lambda_n)$, hence generates a contraction $C_0$-semigroup on $X$; the boundary conditions on $V$ are those of the domain of $B$. Let $\mathcal L$ collect the remaining terms of \eqref{eq:two-point-revised}. It is bounded on $X$:
 \[
 \|(\mathcal L v)_{ij}\|\le\sum_k\big(|R_{ik}|\|v_{kj}\|+|R_{jk}|\|v_{ik}\|\big)+\bar q\sum_k|\sigma_{ik}\sigma_{jk}|\,\|v_{kk}\| ,
 \]
-because multiplication by the bounded function $q$ is bounded on $L^2(D\times D)$. So $B+\mathcal L$ generates a $C_0$-semigroup on $X$.
+because multiplication by the bounded function $q$ is bounded on $L^2(\Omega\times\Omega)$. So $B+\mathcal L$ generates a $C_0$-semigroup on $X$.
  
 The map $t\mapsto V(t)\in X$ is continuous, by dominated convergence from continuity of $u$ in $H$ and the fourth-moment bound. By \eqref{eq:coef-ode-revised}, $V$ is a weak solution of $V'=(B+\mathcal L)V$ tested against the basis $e_m\otimes e_n$, which is dense in $D(B)$ in graph norm. A continuous weak solution coincides with the mild solution (Ball, 1977), and the mild solution is unique. This proves (b).
  
 \textbf{Part (a)} is identical with the noise term absent: take expectations in Step~1, using $\mathbb{E}M_i^m=0$, to get $\frac{d}{dt}m_i^m=-D_i\lambda_m m_i^m+\sum_jR_{ij}m_j^m$.
 \end{proof}
+
+\begin{corollary}[Step independence across the hierarchy]\label{cor:indep}
+Under (H), each moment equation of the hierarchy is a member of the family \eqref{eq:family}--\eqref{eq:coupledrd} with diffusivities $D_i$ and reactions determined by $R,\sigma$; in particular the optimal step $\dto^{(i)}=\dx^2/(6D_i)$ is independent of the noise amplitude $\sigma$ and of the moment order, and $\sigma$ and the order enter only through the correction coefficients \eqref{eq:C1}.
+\end{corollary}
  
 \begin{remark}[Why the pointwise equation does not close]\label{rem:pointwise-fails}
 The former Prop.~12 asserted $\partial_t V_{ij}(x,x)=(D_i+D_j)\partial_{xx}V_{ij}(x,x)+\cdots$ for the same-point function. Set $v_{ij}(x)=V_{ij}(x,x)$. The chain rule gives
@@ -139,12 +143,12 @@ For white noise ($q=\delta(x-y)$) the source is $\delta(x-y)\sum_k\sigma_{ik}\si
 \end{remark}
  
 \begin{remark}[Notation]
-The former text wrote $M_i$ in \eqref{eq:mean-revised}; use $m_i$ for means and reserve $M_k$ for nothing. The old Prop.~11 is subsumed by (a) for $k=1$; it is retracted for $k\ge 2$.
+The former text wrote $M_i$ in \eqref{eq:mean-revised}; use $m_i$ for means. The former Prop.~11 (reproduced below as an alternative proof) is subsumed by part (a) for $k=1$ and retracted for $k\ge 2$.
 \end{remark}
 
 \todo{decide which proof is actually worth to keep}
-\begin{proof}[Alternative proof of Proposition~11]
-Write $\mathcal D$ for the spatial domain and $H=L^2(\mathcal D)$.
+\begin{proof}[Alternative proof of Proposition~\ref{prop:moments-revised}]
+Write $\Omega$ for the spatial domain and $H=L^2(\Omega)$.
 All expectations and integrals below are justified by hypothesis~(H),
 the boundedness of $q$, and the Cauchy--Schwarz inequality.
 We derive the equations in weak form, so no pointwise differentiability
@@ -152,21 +156,21 @@ of the random field is assumed.
 
 \paragraph{Step 1: The mean equation.}
 Fix a species $i$ and a smooth test function $\varphi$ satisfying the
-periodic or homogeneous Neumann boundary condition. Testing (18)
+periodic or homogeneous Neumann boundary condition. Testing \eqref{eq:sys-revised}
 against $\varphi$ gives
 \begin{align*}
 \langle u_i(t),\varphi\rangle
 ={}&\langle u_i(0),\varphi\rangle
  +\int_0^t\left[D_i\langle u_i(s),\Delta\varphi\rangle
        +\sum_kR_{ik}\langle u_k(s),\varphi\rangle\right]ds\\
-&+\sum_{k,p}\sigma_{ik}\sqrt{\mu_p}
+&+\sum_{k,p}\sigma_{ik}\sqrt{\nu_p}
    \int_0^t\langle u_k(s)f_p,\varphi\rangle\,d\beta_{kp}(s).
 \end{align*}
 The last line is an integrable, mean-zero stochastic integral:
 indeed, its second moment is bounded by a constant multiple of
 $\int_0^t\mathbb E\|u(s)\|_H^2\,ds$, since
-$\sum_p\mu_p\|u_k f_p\|_H^2
-=\int_{\mathcal D}q(x,x)|u_k(x)|^2\,dx
+$\sum_p\nu_p\|u_k f_p\|_H^2
+=\int_{\Omega}q(x,x)|u_k(x)|^2\,dx
 \leq\bar q\|u_k\|_H^2$.
 Taking expectations and setting $m_i=\mathbb E[u_i]$ yields
 \[
@@ -175,7 +179,7 @@ Taking expectations and setting $m_i=\mathbb E[u_i]$ yields
  +\int_0^t\left[D_i\langle m_i(s),\Delta\varphi\rangle
        +\sum_kR_{ik}\langle m_k(s),\varphi\rangle\right]ds.
 \]
-This is the weak form of (19).
+This is the weak form of \eqref{eq:mean-revised}.
 
 \paragraph{Step 2: The two-point product.}
 Fix species $i,j$ and smooth test functions $\varphi,\psi$ as above.
@@ -197,22 +201,22 @@ and drift--drift products vanish at first order.
 For each channel $k$ and covariance mode $p$, the noise coefficients
 of $X$ and $Y$ are, respectively,
 \[
-a_{kp}=\sigma_{ik}\sqrt{\mu_p}\langle u_k f_p,\varphi\rangle,
+a_{kp}=\sigma_{ik}\sqrt{\nu_p}\langle u_k f_p,\varphi\rangle,
 \qquad
-b_{kp}=\sigma_{jk}\sqrt{\mu_p}\langle u_k f_p,\psi\rangle.
+b_{kp}=\sigma_{jk}\sqrt{\nu_p}\langle u_k f_p,\psi\rangle.
 \]
 Independence of the $\beta_{kp}$ implies that the covariance term
 in the expected product increment is
 $\mathbb E\sum_{k,p}a_{kp}b_{kp}\,dt$.
-The expansion $q(x,y)=\sum_p\mu_p f_p(x)f_p(y)$ therefore gives
+The expansion $q(x,y)=\sum_p\nu_p f_p(x)f_p(y)$ therefore gives
 \begin{align*}
 \sum_{k,p}a_{kp}b_{kp}
 &=\sum_k\sigma_{ik}\sigma_{jk}
-  \sum_p\mu_p
-   \left(\int_{\mathcal D}u_k(x)f_p(x)\varphi(x)\,dx\right)
-   \left(\int_{\mathcal D}u_k(y)f_p(y)\psi(y)\,dy\right)\\
+  \sum_p\nu_p
+   \left(\int_{\Omega}u_k(x)f_p(x)\varphi(x)\,dx\right)
+   \left(\int_{\Omega}u_k(y)f_p(y)\psi(y)\,dy\right)\\
 &=\sum_k\sigma_{ik}\sigma_{jk}
-  \iint_{\mathcal D^2}q(x,y)u_k(x)u_k(y)
+  \iint_{\Omega^2}q(x,y)u_k(x)u_k(y)
                          \varphi(x)\psi(y)\,dx\,dy.
 \end{align*}
 The interchange of summation and integration is justified by the
@@ -222,7 +226,7 @@ by taking limits of finite covariance-mode sums in $L^1$.
 \paragraph{Step 3: Taking expectations.}
 The deterministic part of the product rule contributes
 \begin{align*}
-& D_i\,\mathbb E\!ig[\langle u_i,\Delta\varphi\rangle
+& D_i\,\mathbb E\!\big[\langle u_i,\Delta\varphi\rangle
                          \langle u_j,\psi\rangle\big]
  +D_j\,\mathbb E\!\big[\langle u_i,\varphi\rangle
                          \langle u_j,\Delta\psi\rangle\big]\\
@@ -255,20 +259,20 @@ terms gives the integral identity
 \end{align*}
 Here each integrand is evaluated at $s$.
 Finite sums of product test functions $\varphi\otimes\psi$ are dense
-in $L^2(\mathcal D^2)$ and form a core for the product Laplacian
+in $L^2(\Omega^2)$ and form a core for the product Laplacian
 with the stated boundary conditions. Hence this identity is the weak
-form of (20), with the separate spatial operators
+form of \eqref{eq:two-point-revised}, with the separate spatial operators
 $D_i\Delta_x+D_j\Delta_y$.
 
 \paragraph{Step 4: Closure and uniqueness.}
-The right-hand side of (20) uses only the collection
+The right-hand side of \eqref{eq:two-point-revised} uses only the collection
 $\{V_{k\ell}\}_{k,\ell=1}^N$: the noise term involves $V_{kk}$ rather
 than a third- or fourth-order moment. Thus the two-point system closes.
 To see uniqueness, let $Z$ be the difference of two mild solutions
 with identical initial data. The diffusion operator
 $B Z=(D_i\Delta_x Z_{ij}+D_j\Delta_y Z_{ij})_{ij}$
 generates a contraction semigroup $S(t)$ on
-$\mathcal X=L^2(\mathcal D^2)^{N\times N}$.
+$\mathcal X=L^2(\Omega^2)^{N\times N}$.
 The remaining reaction-and-noise operator $L$ is bounded on
 $\mathcal X$, since $R,\sigma$ are finite matrices and
 $\|qZ_{kk}\|_{L^2}\leq\bar q\|Z_{kk}\|_{L^2}$.
@@ -281,22 +285,22 @@ Gronwall's inequality gives $Z=0$. Existence of the mild solution
 follows from the bounded-perturbation theorem for this same
 contraction semigroup, and the weak identity above identifies the
 moment field with that unique solution. The identical deterministic
-argument applies to the mean system (19). This proves (a) and (b).
+argument applies to the mean system \eqref{eq:mean-revised}. This proves (a) and (b).
 \end{proof}
 
-Proposition~\ref{prop:closure} makes \S\ref{sec:method} apply verbatim to every moment equation. This formulation buys us a couple nice formulations:
+Proposition~\ref{prop:moments-revised} makes \S\ref{sec:method} apply verbatim to every moment equation. This formulation buys us a couple nice formulations:
 
 \begin{enumerate}
-\item \textbf{One step for the whole hierarchy} (Cor.~\ref{cor:indep}): $\dto = \dx^2/6D$ governs every $M_k$ simultaneously; $\sigma$ and $k$ appear only in the correction coefficients \eqref{eq:C1} --- e.g.\ the mean ($\alpha= \frac12\sigma^2$) and second moment ($\alpha=\sigma^2$) are advanced by the same step, different corrections. Since It\^o drift is necessarily a defect and not a structural change (the noise-induced reaction term is explicitly computable) it slots into $C^{(1)}$ exactly as any reaction term would. 
+\item \textbf{One step for the whole hierarchy} (Cor.~\ref{cor:indep}): $\dto = \dx^2/6D$ governs every $M_k$ simultaneously; $\sigma$ and $k$ appear only in the correction coefficients \eqref{eq:C1} --- e.g.\ for the mean of a lognormal-in-time model ($\alpha=\frac12\sigma^2$) and the second moment ($\alpha=\sigma^2$), the same step applies with different corrections. Since It\^o drift is necessarily a defect and not a structural change (the noise-induced reaction term is explicitly computable) it slots into $C^{(1)}$ exactly as any reaction term would. 
 
-\item \textbf{Weak, not strong, by construction:} The method never samples $\dot W$, so the Davie--Gaines strong-order-$1/2$ ceiling \citep{davie2001} governs a problem we do not solve. The delivered object is fourth-order convergence of the computed moment fields to the true moments of the closed system \tagV (scalar, Table~\ref{tab:scalar}); conversion to statements about the SPDE law rides entirely on Proposition~\ref{prop:closure}'s exact closure.
+\item \textbf{Weak, not strong, by construction:} The method never samples $\dot W$, so the Davie--Gaines strong-order-$1/2$ ceiling \citep{davie2001} governs a problem we do not solve. The delivered object is fourth-order convergence of the computed moment fields to the true moments of the closed system \tagV (scalar, Table~\ref{tab:scalar}); conversion to statements about the SPDE law rides entirely on Proposition~\ref{prop:moments-revised}'s exact closure.
   
 \item \textbf{Stability transfers:} the growing-moment case is exactly the $\eta\ge0$ regime of Prop.~\ref{prop:stability} --- the correction marginally \emph{shrinks} the CFL window and is comfortably stable at $\dto$ \tagV. \todo{unsure of this}
 \end{enumerate}
 
 \emph{The competitor, stated fairly}
 
-Euler--Maruyama on \eqref{eq:spde} estimates $M_k$ from $M$ paths with error
+Euler--Maruyama on \eqref{eq:sys-revised} estimates $M_k$ from $M$ paths with error
 $O(\dt) + O(M^{-1/2})$ per point; our implementation (\texttt{baselines.py},
 \texttt{euler\_maruyama\_moment}) exists for exactly this comparison
 \tagS\footnote{The EM baseline is implemented and its noise scaling

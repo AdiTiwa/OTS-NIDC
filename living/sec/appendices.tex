@@ -15,3 +15,92 @@ uncancelled $u_{xxxxxx}$ residual.
 \noindent\emph{Status:} \tagO for $p\ge2$ numerics (no harness yet; the bound's
 derivation is a consistency argument in \texttt{OTS-NIDC.md} \S6). The $p=1$
 row is \tagV via Table~\ref{tab:scalar}.
+
+\section{Notation dictionary and reproducibility}\label{app:notation}
+
+\subsection{Global notation dictionary}\label{app:notation-dict}
+
+This was useful and totally AI generated! Consider giving this a look if any notation is not clear.
+
+\paragraph{Steps.} The optimal (Chu) step is
+$\dto=\dx^2/(6D)$ for diffusivity $D$; for species $i$,
+$\dto^{(i)}=\dx^2/(6D_i)$, also written $\tau_i$ (and simply $\tau$ when the
+scalar problem is meant). A forced or actual step is $h$; the shared two-species
+step of \S\ref{sec:regime1} is $h=\dto^{(2)}$. The macro step of
+\S\ref{sec:regime2} is $H=\dto^{(2)}$, decomposed as $n_r$ full steps of
+$\dto^{(1)}$ plus a remainder $\rho=\theta\,\dto^{(1)}$. The local truncation
+error is always $\mathcal{T}$ (never $\tau$), as in \eqref{eq:lte}.
+
+\paragraph{Dimensionless groups.} The master variables are the \emph{step
+ratio} $r=h/\tau=6D\dt/\dx^2$ (legacy diffusion number $\mu=r/6$, used only in
+classical comparisons) and the \emph{step-independent reaction strength}
+$\eta=\alpha\dx^2/D$. The per-step reaction exponent is $a=\alpha h=r\eta/6$
+(so $a=\eta/6$ at the optimum). The mismatch parameter is
+$\varepsilon=h-\tau=(r-1)\tau$; for the remainder step of Method A,
+$\varepsilon_\rho=\rho-\dto^{(1)}=(\theta-1)\dto^{(1)}$. The subcycle count is
+$n_r=\lfloor r\rfloor$ and the remainder fraction is $\theta=r-n_r$.
+
+\paragraph{Amplification factors.} With $s=\sin^2(\kappa\dx/2)$:
+$G_{\mathrm{FE}}$ is the factor of the full (diffusion + reaction) uncorrected
+forward-Euler scheme, $G_{\mathrm{FE}}=1-\frac{2r}{3}s+\frac{r\eta}{6}$
+(\S\ref{sec:method}); $G_{\mathrm{NIDC}}$ is the factor of the corrected scheme
+with the $C^{(1)}$ coefficients derived at the optimum,
+$G_{\mathrm{NIDC}}=G_{\mathrm{FE}}-\frac{\eta}{9}s+\frac{\eta^2}{72}$
+(\S\ref{sec:method}); $G_{\mathrm{mis}}$ is the \emph{diffusion-only} factor of
+the mismatch-corrected diffusion step,
+$G_{\mathrm{mis}}=1-\frac{2r}{3}s+\frac{2r(r-1)}{9}s^2$ (\S\ref{sec:regime1});
+$G_{\mathrm{NIDC},h}$ is the full factor of the forced-step corrected scheme,
+$G_{\mathrm{NIDC},h}=G_{\mathrm{FE}}+\frac{2r(r-1)}{9}s^2-\frac{2ra}{3}s+\frac{a^2}{2}$
+(\S\ref{sec:regime1}, Remark~\ref{rem:gfac}). $E(s)$ is the exact semi-discrete
+one-step factor $e^{-\frac{2r}{3}s+a}$; $E_q$ (\S\ref{sec:regime2}) is
+unrelated --- the degree-$q$ time extrapolant.
+
+\paragraph{Bridge identities.} $r=6\mu$; $a=\mu\eta=r\eta/6$; $\eta=6a$ at
+$r=1$; $\mu=\frac16$ (equivalently $r=1$) at the optimal step. At $r=1$ the
+factors agree: $G_{\mathrm{NIDC},h}=G_{\mathrm{NIDC}}$ and the diffusion part
+of $G_{\mathrm{NIDC}}$ equals $G_{\mathrm{mis}}$. Off the optimum,
+$G_{\mathrm{NIDC}}$ (frozen $C^{(1)}$ coefficients) and $G_{\mathrm{NIDC},h}$
+($h$-rescaled corrections plus mismatch) are different conventions; the paper's
+stability statements use the former in \S\ref{sec:method} and the latter in
+\S\ref{sec:regime1}, and both satisfy $|G|\le e^{a}$ on their respective
+admitted ranges.
+
+\paragraph{Indices and spaces.} Nodes are $j$ (subscript); species are $i$,
+with reaction matrix $R_{i\ell}$ (the scalar-analysis reaction strength
+$\alpha$ is the diagonal eigen-reaction of the moment hierarchy); spatial
+wavenumber is $\kappa$; time level is $n$, the final time level is $n_f$, the
+subcycle count is $n_r$, and macro-step counter is $k$ ($t^k$). Grid size is
+$N_x$. The spatial domain of the companion \secStochX{} is $\Omega$ (not $D$,
+which is reserved for diffusivity); its Hilbert space is $H=L^2(\Omega)$; the
+Mercer eigenvalues of the covariance are $\nu_p$ (not $\mu_p$, avoiding the
+diffusion-number collision). The noise channel index is $k$, the covariance
+mode index $p$, and the Fourier mode index $m$ --- $k$ and $m$ are local to
+the companion \secStochX{} and never appear there as steps or nodes.
+
+\subsection{Reproducibility}\label{app:repro}
+
+The convergence harness of Table~\ref{tab:scalar} is
+\texttt{code/implementation/convergence\_test.py} in the repository, with
+results logged in \texttt{code/implementation/results.md} (2026-07). The
+stability claims of \S\ref{sec:method} and \S\ref{sec:regime1} were
+cross-checked by independent re-derivation of every amplification factor
+symbolically from the update formulas and by dense numerical sweeps over
+$(r,\eta,s)$ --- zero violations of the stated bounds on the admitted ranges;
+the check scripts live outside the repository tree and should be re-homed
+under \texttt{code/verification/} in the next release.
+
+\section{Open items}\label{sec:open}
+
+\begin{itemize}
+\item \textbf{Coupled discrete stability}\label{open:stab}: the
+off-diagonal reaction coupling and its interpolated subcycled variant have no
+independent stability proof; only the scalar building blocks of
+\S\ref{sec:method} and \S\ref{sec:regime1} are established.
+\item \textbf{Cross-term correction with $\partial_t u^{(2)}$} inside the
+sub-steps of \S\ref{sec:regime2} (supply via finite difference or Hermite
+derivative; check it does not lower the order).
+\item \textbf{More than two species}: define the ordering of the ratios and
+whether to nest the subcycles.
+\item \textbf{$p\ge 2$}: interpolation degree $q \ge p$ and extrapolation
+degree $q \ge p+1$ are predicted by the same counting, but untested.
+\end{itemize}

@@ -19,7 +19,7 @@ With this, we get the desired theorem as follows.
   The scheme
 
   \begin{equation}\label{eq:coupledscheme}
-    u^{(i), n+1}_{k} = u^{(i), n}_{k} + \dto \left[ D_i \ddx u^{(i), n}_{k} + \sum_j R_{ij} u^{(j), n}_{k} \right] + C^{(1), (i)}
+      u^{(i), n+1}_{j} = u^{(i), n}_{j} + \dto^{(i)} \left[ D_i \ddx u^{(i), n}_{j} + \sum_{\ell} R_{i\ell} u^{(\ell), n}_{j} \right] + C^{(1), (i)}
   \end{equation}
 
   has similar step error and global order as given by Theorem \ref{thm:p1}.
@@ -27,27 +27,28 @@ With this, we get the desired theorem as follows.
 
 \subsubsection{Competing Time Steps and Subcycling}
 
-Notice that the scheme presented by Theorem \ref{thm:cpl-p1} relies on having $u^{(j), n}_{k}$ from having the value of separate PDE $u^{(j)}$ at time-step $n$. However, since each equation itself relies on their own time-step, we lose the guarantee of having the required value for any given equation readily available if $D_i \neq D, \forall i$ such that $\dto^{(i)} = \dto$ for the whole system.
+Notice that the scheme presented by Theorem \ref{thm:cpl-p1} relies on having $u^{(\ell), n}_{j}$, the value of the separate PDE $u^{(\ell)}$ at time-step $n$. However, since each equation carries its own optimal step, the required value is not readily available whenever the diffusivities differ, $D_i \neq D_j$ for some $i \neq j$, i.e.\ whenever no single $\dto$ serves the whole system.
 
 The two failure modes of a naive single step frame the problem.
 
 \paragraph{Failure 1: shared step without correction.} If species 1 (fast,
-$D_1$) is forced onto species 2's optimum $\dt^\ast=\tau_2$, its Group-1
+$D_1$, optimal step $\tau_1=\dto^{(1)}$) is forced onto species 2's optimum
+$h=\tau_2=\dto^{(2)}$, its Group-1
 cancellation breaks. The one-step identity
 \begin{equation}\label{eq:mismatchid}
-e(\dt^\ast) \;=\; \dt^\ast D_1\,\tilde u_{xxxx}
-\Bigl[\tfrac{\dt^\ast D_1}{2} - \tfrac{\dx^2}{12}\Bigr] + O((\dt^\ast)^3)
+e(h) \;=\; h D_1\,\tilde u_{xxxx}
+\Bigl[\tfrac{h D_1}{2} - \tfrac{\dx^2}{12}\Bigr] + O(h^3)
 \end{equation}
-is exact for every $\dt^\ast$, and writing $\dt^\ast = \tau_1 + \epsilon$ turns
-the bracket into $\epsilon D_1/2$ \emph{identically} (no Taylor truncation in
-$\epsilon$). 
+is exact for every $h$ --- where $\tilde u_{xxxx}=\partial_x^4u^{(1)}$ is evaluated on the exact solution at the step, the representative of the LTE remainder as in \S\ref{sec:method} --- and writing $h = \tau_1 + \varepsilon$ turns
+the bracket into $\varepsilon D_1/2$ \emph{identically} (no Taylor truncation in
+$\varepsilon$). 
 
 We remain, however, that this stencil is not ideal for each step, and it leads to questions of stability. In fact,
 
 \paragraph{Failure 2: naive splitting.} Lie--Trotter splitting with the
 coupling frozen over a macro step $H$ incurs a sustained $O(H)$ forcing error;
 accumulated over $T/H$ cycles this is a global $O(H) = O(\dx^2)$ error ---
-worse than the uncorrected base scheme. Freezing is not viable; coupling data
+worse than the uncorrected base scheme. Freezing is not viable; coupling
 data must be interpolated. 
 
 The rest of this paper introduces methods of attempting to corroborate the differences between these time-steps in ways to recover the accuracy that we would lose by just picking one or the other. 

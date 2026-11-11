@@ -1,15 +1,15 @@
-\section{Regime 2: Interpolation and Subcycling}
+\section{Regime 2: Interpolation and Subcycling}\label{sec:regime2}
 
 \subsection{Setup and switching rule}
 
 Two species with $\dto^{(1)} < \dto^{(2)}$, so $D_1 > D_2$ and species 1 is the fast one. Define the step ratio $r = \frac{\dto^{(2)}}{\dto^{(1)}} = \frac{D_1}{D_2} > 1$. This is the same $r = h/\tau$ as in Regime 1, with $h = \dto^{(2)}$ forced onto the fast equation and $\tau = \dto^{(1)}$. The mismatch is $\varepsilon = \dto^{(2)} - \dto^{(1)} = (r-1)\,\dto^{(1)}$, as in Regime 1.
 
 \begin{itemize} 
-  \item Macro step $H = \dto^{(2)}$. Write $n = \lfloor r \rfloor$, $\theta = r - n \in [0,1)$, and remainder $\rho = H - n\,\dto^{(1)} = \theta\,\dto^{(1)} \in [0,\dto^{(1)})$.
+  \item Macro step $H = \dto^{(2)}$. Write $n_r = \lfloor r \rfloor$, $\theta = r - n_r \in [0,1)$, and remainder $\rho = H - n_r\,\dto^{(1)} = \theta\,\dto^{(1)} \in [0,\dto^{(1)})$.
   \item Switching rule: Regime 1 is stable for $r < 4$ (Theorem \ref{thm:r1-stab}), so Regime 2 is needed for $r \ge r_c$ with $r_c \in [3,4)$ a design parameter.
   \begin{itemize}
     \item $r_c = 3$ is the conservative choice (the uncorrected forward Euler ceiling).
-    \item Larger $r_c$ is supported by Fourier stability up to $r = 4$, but at $r = 4$ the grid mode is only marginally stable ($G_{\mathrm{diff}}(1) = 1$) and the mismatch term is $O(1)$ at grid scale. Say this explicitly and justify the choice of $r_c$ numerically.
+    \item Larger $r_c$ is supported by Fourier stability up to $r = 4$, but at $r = 4$ the grid mode is only marginally stable ($G_{\mathrm{mis}}(1) = 1$) and the mismatch term is $O(1)$ at grid scale. Say this explicitly and justify the choice of $r_c$ numerically.
   \end{itemize}
   \item Ordering within a macro step (slow first):
   \begin{enumerate}
@@ -54,7 +54,7 @@ Let $I_q u^{(2)}$ denote the Lagrange interpolant in time of degree $q$ through 
 
 \subsection{Closing the macro step}
 
-After $n$ full steps of $\dto^{(1)}$, the fast species has advanced $n\,\dto^{(1)}$ and still needs $\rho = \theta\,\dto^{(1)}$ to reach $t^{k+1}$.
+After $n_r$ full steps of $\dto^{(1)}$, the fast species has advanced $n_r\,\dto^{(1)}$ and still needs $\rho = \theta\,\dto^{(1)}$ to reach $t^{k+1}$.
 
 \subsubsection{Method A: remainder step}
 
@@ -68,9 +68,9 @@ After $n$ full steps of $\dto^{(1)}$, the fast species has advanced $n\,\dto^{(1
 \end{theorem}
 
 \begin{itemize}
-  \item Proof outline: Theorem \ref{thm:interp-degree} for the coupling data; Theorem \ref{thm:cpl-r1-p1} for each step (the remainder has step ratio $\rho/\dto^{(1)} = \theta < 1$); telescoping over the $n+1$ steps per macro step.
+  \item Proof outline: Theorem \ref{thm:interp-degree} for the coupling data; Theorem \ref{thm:cpl-r1-p1} for each step (the remainder has step ratio $\rho/\dto^{(1)} = \theta < 1$); telescoping over the $n_r+1$ steps per macro step.
   \item Stability: scalar building block is Theorem \ref{thm:r1-stab}, since full steps have step ratio $h/\tau = 1$ and the remainder has $0<h/\tau<1$. Coupled stability still open (same status as Regime 1).
-  \item Failure mode to remark on: $\theta \to 0$ gives a vanishingly short remainder. Fine for stability ($G_{\mathrm{diff}} \to 1$), but check that the mismatch term $\varepsilon_\rho \to -\dto^{(1)}$ behaves.
+  \item Failure mode to remark on: $\theta \to 0$ gives a vanishingly short remainder. Fine for stability ($G_{\mathrm{mis}} \to 1$), but check that the mismatch term $\varepsilon_\rho \to -\dto^{(1)}$ behaves.
 \end{itemize}
 
 \subsubsection{Method B: extrapolated point}
@@ -103,11 +103,11 @@ After $n$ full steps of $\dto^{(1)}$, the fast species has advanced $n\,\dto^{(1
 \end{itemize}
 
 \begin{lemma}[Fourier symbol of Method B]\label{lem:B-symbol}
-  With $G(s)$ the single-step factor at the optimal step, the macro amplification factor for the quadratic extrapolant is
+  With $G(s)$ the optimal-step NIDC factor \eqref{eq:factor} of \S\ref{sec:method}, the macro amplification factor for the quadratic extrapolant is
   \[
-    M_B(s;\theta) = G(s)^n \Bigl[ \tfrac{(\theta+1)(\theta+2)}{2} - \tfrac{\theta(\theta+2)}{G(s)} + \tfrac{\theta(\theta+1)}{2\,G(s)^2} \Bigr].
+    M_B(s;\theta) = G(s)^{n_r} \Bigl[ \tfrac{(\theta+1)(\theta+2)}{2} - \tfrac{\theta(\theta+2)}{G(s)} + \tfrac{\theta(\theta+1)}{2\,G(s)^2} \Bigr].
   \]
-  At the grid mode of the diffusive step, $G = 1/3$ and the bracket equals $1+2\theta^2$.
+  At the grid mode, the diffusion-only part of $G$ equals $1/3$ --- the value used in the bracket evaluation below; the full factor there is $\frac{1+a}{3}+\frac{a^2}{2}$ with $a=\eta/6$.
 \end{lemma}
 
 \begin{itemize}
